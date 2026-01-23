@@ -1,0 +1,104 @@
+{
+  "title": "Masterarbeit Titel",
+  "subtitle": "Ihre Masterarbeit Präsentation",
+  "author": "Ihr Name",
+  "topics": [
+    {
+      "id": 1,
+      "title": "Beweggründe",
+      "color": "#4CAF50",
+      "subtopics": ["Persönlicher Zugang", "Berufliche Erfahrungen", "Relevanz"],
+      "slides": [
+        {
+          "title": "Beweggründe - Übersicht",
+          "content": "Welches sind meine Beweggründe für das Thema?"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Thesen",
+      "color": "#2196F3",
+      "subtopics": ["Hauptthese", "Fragestellung", "Hypothesen"],
+      "slides": [
+        {
+          "title": "Thesen - Übersicht",
+          "content": "Was sind meine Thesen?"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Hermeneutischer Zugang",
+      "color": "#FF9800",
+      "subtopics": ["Methodologie", "Verstehensansatz", "Interpretation"],
+      "slides": [
+        {
+          "title": "Hermeneutischer Zugang",
+          "content": "Wie verstehe ich das Thema hermeneutisch?"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Ethik & Philosophie",
+      "color": "#9C27B0",
+      "subtopics": ["Ethische Grundlagen", "Philosophischer Rahmen", "Wertebasis"],
+      "slides": [
+        {
+          "title": "Ethik & Philosophie",
+          "content": "Welche ethischen und philosophischen Grundlagen gibt es?"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Felder & Dederich",
+      "color": "#F44336",
+      "subtopics": ["Theoretische Bezüge", "Wissenschaftliche Einordnung", "Diskurs"],
+      "slides": [
+        {
+          "title": "Felder & Dederich",
+          "content": "Wie ordne ich mich in den wissenschaftlichen Diskurs ein?"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Ordnung der Erkenntnisse",
+      "color": "#009688",
+      "subtopics": ["Kategorisierung", "Zusammenführung", "Strukturierung"],
+      "slides": [
+        {
+          "title": "Ordnung der Erkenntnisse",
+          "content": "Wie ordne ich die Erkenntnisse?"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Beratung & Kooperation",
+      "color": "#FF5722",
+      "subtopics": ["Heilpädagogischer Kontext", "Beratungskonzepte", "Kooperationsmodelle"],
+      "slides": [
+        {
+          "title": "Beratung & Kooperation",
+          "content": "Wie ordne ich mich heilpädagogisch ein?"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Praxisfolgen",
+      "color": "#607D8B",
+      "subtopics": ["Handlungsempfehlungen", "Praktische Implikationen", "Ausblick"],
+      "slides": [
+        {
+          "title": "Praxisfolgen",
+          "content": "Was folgt daraus für die heilpädagogische Praxis?"
+        }
+      ]
+    }
+  ],
+  "closingMessage": "Vielen Dank für Ihre Aufmerksamkeit!"
+}

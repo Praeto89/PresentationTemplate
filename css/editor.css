@@ -1,0 +1,389 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   EDITOR STYLES - Web-based Slide Content Editor
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Edit Button on Slides */
+.edit-slide-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(52, 152, 219, 0.9);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 100;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.edit-slide-btn:hover {
+  background: rgba(41, 128, 185, 1);
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.edit-slide-btn:active {
+  transform: scale(0.95);
+}
+
+/* Editor Modal */
+.editor-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.editor-modal.active {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.editor-container {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.editor-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.editor-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.editor-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.editor-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.editor-body {
+  padding: 30px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group textarea {
+  min-height: 150px;
+  resize: vertical;
+  font-family: 'Courier New', monospace;
+  line-height: 1.6;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: #7f8c8d;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.editor-footer {
+  padding: 20px 30px;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: #e0e0e0;
+  color: #2c3e50;
+}
+
+.btn-secondary:hover {
+  background: #d0d0d0;
+}
+
+/* Editor Control Panel */
+.editor-controls {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.editor-controls button {
+  background: rgba(52, 152, 219, 0.95);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.editor-controls button:hover {
+  background: rgba(41, 128, 185, 1);
+  transform: translateX(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.editor-controls button:active {
+  transform: translateX(-5px) scale(0.95);
+}
+
+.editor-controls button.danger {
+  background: rgba(231, 76, 60, 0.95);
+}
+
+.editor-controls button.danger:hover {
+  background: rgba(192, 57, 43, 1);
+}
+
+.editor-controls button.success {
+  background: rgba(46, 204, 113, 0.95);
+}
+
+.editor-controls button.success:hover {
+  background: rgba(39, 174, 96, 1);
+}
+
+/* Notification Toast */
+.notification-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideInRight 0.3s ease;
+  border-left: 4px solid #27ae60;
+}
+
+.notification-toast.error {
+  border-left-color: #e74c3c;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.notification-toast .icon {
+  font-size: 24px;
+}
+
+.notification-toast .message {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+/* Preview Mode Indicator */
+.preview-indicator {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(46, 204, 113, 0.95);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 9998;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Scrollbar Styling */
+.editor-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.editor-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.editor-body::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.editor-body::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .editor-container {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .editor-header {
+    padding: 15px 20px;
+  }
+
+  .editor-header h2 {
+    font-size: 20px;
+  }
+
+  .editor-body {
+    padding: 20px;
+  }
+
+  .editor-footer {
+    padding: 15px 20px;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .editor-controls {
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .editor-controls button {
+    font-size: 12px;
+    padding: 10px 16px;
+  }
+}
+
+/* Hide editor elements in presentation mode */
+body:not(.edit-mode) .edit-slide-btn,
+body:not(.edit-mode) .editor-controls {
+  display: none;
+}
