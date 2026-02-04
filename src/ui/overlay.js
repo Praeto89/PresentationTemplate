@@ -14,6 +14,8 @@ function getOrCreateOverlay() {
   
   overlayElement = document.createElement('div');
   overlayElement.className = 'edit-overlay is-hidden';
+  overlayElement.style.zIndex = '99999';
+  overlayElement.style.position = 'fixed';
   overlayElement.innerHTML = `
     <div class="overlay-content">
       <div class="overlay-header">

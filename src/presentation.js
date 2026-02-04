@@ -4,11 +4,21 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 import { initEditor } from './editor.js';
+import { initEditMode } from '../js/modules/edit-mode.js';
 
 async function init() {
+  // If in edit mode, remove hash and disable hash tracking
+  const urlParams = new URLSearchParams(window.location.search);
+  const isEditMode = urlParams.get('mode') === 'edit';
+  
+  if (isEditMode) {
+    // Remove hash from URL to start fresh
+    window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+  }
+  
   // Initialize Reveal.js
   await Reveal.initialize({
-    hash: true,
+    hash: false, // Disable hash to prevent auto-navigation
     controls: true,
     progress: true,
     center: true,
@@ -23,6 +33,16 @@ async function init() {
     viewDistance: 3,
     mobileViewDistance: 2
   });
+  
+  // Wait for Reveal ready, then navigate to slide 0
+  Reveal.on('ready', () => {
+    setTimeout(() => {
+      Reveal.slide(0, 0, 0);
+    }, 100);
+  });
+  
+  // Also navigate immediately
+  Reveal.slide(0, 0, 0);
   
   // Setup clickable navigation boxes
   setupNavigationBoxes();
@@ -91,6 +111,7 @@ async function init() {
   
   // Initialize editor if in edit mode
   initEditor();
+  initEditMode();
   
   // Apply global background image if provided via URL or data attribute
   try {
@@ -440,16 +461,6 @@ function setupNavigationBoxes() {
     
     e.stopPropagation();
 
-    // In edit mode: clicking a nav box jumps directly to its detail slide
-    if (document.body.classList.contains('edit-mode')) {
-      const targetH = parseInt(box.dataset.targetH, 10);
-      const targetV = parseInt(box.dataset.targetV, 10);
-      if (!isNaN(targetH) && !isNaN(targetV)) {
-        Reveal.slide(targetH, targetV);
-      }
-      return; // Do not expand overlay in edit mode
-    }
-    
     // If this box is already expanded, collapse it
     if (box.classList.contains('expanded')) {
       collapseBox(box, overlay);
@@ -490,9 +501,16 @@ function expandBox(box, overlay) {
   const targetH = parseInt(box.dataset.targetH, 10);
   const targetV = parseInt(box.dataset.targetV, 10);
   
+  console.log('[expandBox] Expanding box for h=', targetH, 'v=', targetV);
+  
   // Get the target slide content
   const targetSlide = Reveal.getSlide(targetH, targetV);
-  if (!targetSlide) return;
+  console.log('[expandBox] Target slide found:', !!targetSlide);
+  
+  if (!targetSlide) {
+    console.warn('[expandBox] Target slide not found for h=', targetH, 'v=', targetV);
+    return;
+  }
   
   // Clone the slide content
   const content = targetSlide.cloneNode(true);
@@ -520,6 +538,7 @@ function expandBox(box, overlay) {
   setTimeout(() => {
     overlay.classList.add('active');
     box.classList.add('expanded');
+    console.log('[expandBox] Box expanded');
   }, 10);
 }
 
@@ -619,7 +638,7 @@ function setupCircleNavigation() {
     circle.addEventListener('click', () => {
       const slideIndex = parseInt(circle.dataset.slide, 10);
       if (!isNaN(slideIndex)) {
-        Reveal.slide(slideIndex, 1); // Navigate to group-intro (v=1)
+        Reveal.slide(slideIndex, 0); // Navigate to group-intro (v=0) - die Hauptslide
       }
     });
 
@@ -636,6 +655,9 @@ function setupCircleNavigation() {
     });
   });
 }
+
+// Make setupNavigationBoxes globally accessible for edit-mode.js
+window.setupNavigationBoxes = setupNavigationBoxes;
 
 // Start
 init();

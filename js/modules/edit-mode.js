@@ -23,8 +23,15 @@ import {
   setTabContent,
   appendToTabContent,
   clearTabContent,
-} from '../ui/overlay.js';
+  isOverlayVisible,
+} from '../../src/ui/overlay.js';
 import { normalizeSubtopic } from './utils/normalize.js';
+import {
+  generateCompleteSlidesHTML,
+  generateOverviewCircles,
+  saveGenerationMetadata,
+  loadGenerationMetadata,
+} from './slide-generator.js';
 
 let editModeActive = false;
 let currentEditingSlide = null;
@@ -37,6 +44,7 @@ let childEditorBound = false;
 let dragSourceIndex = null;
 let childSizeInput = null;
 let childSizeValue = null;
+let adminUICreated = false; // Flag to prevent infinite loop
 
 const MAX_SUBTOPICS = 6;
 
@@ -74,6 +82,43 @@ function activateEditMode() {
   console.log('[EditMode] Edit mode activated');
   document.body.classList.add('edit-mode');
 
+  // Add Circle Settings Button (nur im Edit-Mode sichtbar)
+  const circleSettingsBtn = document.createElement('button');
+  circleSettingsBtn.className = 'circle-settings-btn-edit-mode';
+  circleSettingsBtn.innerHTML = '⚙️ Kreise einstellen';
+  circleSettingsBtn.style.cssText = `
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9998;
+    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  `;
+  
+  circleSettingsBtn.addEventListener('mouseover', () => {
+    circleSettingsBtn.style.transform = 'translateY(-2px)';
+    circleSettingsBtn.style.boxShadow = '0 6px 20px rgba(245, 87, 108, 0.6)';
+  });
+  
+  circleSettingsBtn.addEventListener('mouseout', () => {
+    circleSettingsBtn.style.transform = 'translateY(0)';
+    circleSettingsBtn.style.boxShadow = '0 4px 12px rgba(245, 87, 108, 0.4)';
+  });
+  
+  circleSettingsBtn.addEventListener('click', () => {
+    showCircleSettingsModal();
+  });
+  
+  document.body.appendChild(circleSettingsBtn);
+
   // Initialize Editor Features
   if (typeof Reveal !== 'undefined' && Reveal.isReady) {
     setupSlideEditing();
@@ -90,9 +135,16 @@ function activateEditMode() {
 
   // Show unified overlay with tabs
   showOverlay('Bearbeitungsmodus');
-  setupAdminControls();
+  
+  // Setup admin UI FIRST so elements are created
   setupChildEditor();
   setupSizeControls();
+  
+  // THEN setup controls (after elements exist)
+  setupAdminControls();
+  
+  // Switch to Menu verwalten tab to show admin panel
+  switchTab('menu-admin');
 
   // Activate menu edit mode
   setEditMode(true);
@@ -109,6 +161,12 @@ function deactivateEditMode() {
   editModeActive = false;
   console.log('[EditMode] Edit mode deactivated');
   document.body.classList.remove('edit-mode');
+
+  // Remove Circle Settings Button
+  const circleSettingsBtn = document.querySelector('.circle-settings-btn-edit-mode');
+  if (circleSettingsBtn) {
+    circleSettingsBtn.remove();
+  }
 
   // Disable inline editing
   document.querySelectorAll('[contenteditable="true"]').forEach((el) => {
@@ -246,6 +304,10 @@ function validateSlideStructure() {
  */
 function enableInlineEditing() {
   document.querySelectorAll('.overview-title').forEach((el) => {
+    makeEditable(el);
+  });
+
+  document.querySelectorAll('.overview-subtitle').forEach((el) => {
     makeEditable(el);
   });
 
@@ -645,6 +707,47 @@ function setupAdminUI() {
  * Setup Admin Control event listeners
  */
 function setupAdminControls() {
+  console.log('[EditMode] Setting up admin controls...');
+  
+  // Slide Generation Controls
+  const circleCountInput = document.getElementById('admin-circle-count');
+  const generateBtn = document.getElementById('admin-generate-slides-btn');
+  const refreshOverviewBtn = document.getElementById('admin-refresh-overview-btn');
+  const circleCountDisplay = document.getElementById('circle-count-display');
+
+  console.log('[EditMode] Found elements:', {
+    circleCountInput: !!circleCountInput,
+    generateBtn: !!generateBtn,
+    refreshOverviewBtn: !!refreshOverviewBtn,
+    circleCountDisplay: !!circleCountDisplay
+  });
+
+  if (!generateBtn) {
+    console.warn('[EditMode] Generate button not found! Checking DOM...');
+    const allElements = document.querySelectorAll('[id^="admin-"]');
+    console.log('[EditMode] Admin elements in DOM:', Array.from(allElements).map(el => el.id));
+  }
+
+  if (circleCountInput) {
+    circleCountInput.addEventListener('input', () => {
+      const count = parseInt(circleCountInput.value, 10);
+      if (count >= 3 && count <= 12) {
+        if (circleCountDisplay) {
+          circleCountDisplay.textContent = `${count} Kreise`;
+        }
+      }
+    });
+  }
+
+  if (generateBtn) {
+    generateBtn.addEventListener('click', handleGenerateSlides);
+  }
+
+  if (refreshOverviewBtn) {
+    refreshOverviewBtn.addEventListener('click', handleRefreshOverview);
+  }
+
+  // Menu Management Controls
   const exportBtn = document.getElementById('export-content-btn');
   if (exportBtn) {
     exportBtn.addEventListener('click', handleExport);
@@ -664,21 +767,6 @@ function setupAdminControls() {
 }
 
 /**
- * Normalize subtopic entry
- */
-function normalizeSubtopic(entry) {
-  if (typeof entry === 'string')
-    return { title: entry, position: null };
-  if (entry && typeof entry === 'object') {
-    return {
-      title: entry.title ?? '',
-      position: entry.position ?? null,
-    };
-  }
-  return { title: '', position: null };
-}
-
-/**
  * Setup Child Editor UI
  */
 function setupChildEditor() {
@@ -690,9 +778,15 @@ function setupChildEditor() {
 
   const data = getContentData();
 
-  if (!topicSelectEl || !data || !data.topics) {
-    // Create UI if doesn't exist
+  // Only create UI if not already created and elements don't exist
+  if (!topicSelectEl && !adminUICreated && data && data.topics) {
+    adminUICreated = true; // Set flag BEFORE creating to prevent infinite loop
     createAdminUI();
+    return;
+  }
+
+  if (!topicSelectEl || !data || !data.topics) {
+    console.warn('[EditMode] Topic select element or data not found');
     return;
   }
 
@@ -725,10 +819,46 @@ function setupChildEditor() {
  * Create Admin UI HTML
  */
 function createAdminUI() {
+  adminUICreated = true;
+  
   const adminHTML = `
     <div class="admin-panel">
+      
+      <!-- SLIDE GENERATION SECTION -->
       <div class="admin-section">
-        <h3>Menu verwalten</h3>
+        <h3>📊 Slides generieren</h3>
+        
+        <div class="admin-control-group">
+          <label for="admin-circle-count">Anzahl Kreise / Topics:</label>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <input
+              id="admin-circle-count"
+              type="number"
+              min="3"
+              max="12"
+              value="10"
+              style="width: 80px;"
+            />
+            <span id="circle-count-display" style="font-weight: bold; color: #0066cc;">10 Kreise</span>
+          </div>
+          <small style="display: block; margin-top: 5px; color: #666;">
+            Generiert automatisch alle Slides, Detail-Slides und Navigationsboxen
+          </small>
+        </div>
+
+        <div class="admin-control-group">
+          <button id="admin-generate-slides-btn" class="admin-btn-generate">
+            ✨ Slides generieren & einfügen
+          </button>
+          <button id="admin-refresh-overview-btn" class="admin-btn-secondary">
+            🔄 Nur Übersicht aktualisieren
+          </button>
+        </div>
+      </div>
+
+      <!-- MENU ADMINISTRATION SECTION -->
+      <div class="admin-section">
+        <h3>📋 Menu verwalten</h3>
         
         <div class="admin-control-group">
           <label for="admin-topic-select">Topic auswählen:</label>
@@ -1008,7 +1138,305 @@ function updateSubtopicValue(topicId, childIndex, value) {
 }
 
 /**
- * Collect admin changes
+ * Show simple circle settings modal
+ */
+function showCircleSettingsModal() {
+  // Remove existing modal if present
+  const existingModal = document.getElementById('circle-settings-modal');
+  if (existingModal) existingModal.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'circle-settings-modal';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 99998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `;
+
+  const content = document.createElement('div');
+  content.style.cssText = `
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease;
+  `;
+
+  content.innerHTML = `
+    <h2 style="margin-top: 0; color: #333;">🎯 Kreise einstellen</h2>
+    
+    <div style="margin: 20px 0;">
+      <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">
+        Anzahl Kreise / Topics:
+      </label>
+      <input
+        id="modal-circle-count"
+        type="number"
+        min="3"
+        max="12"
+        value="10"
+        style="
+          width: 100%;
+          padding: 10px;
+          font-size: 16px;
+          border: 2px solid #ddd;
+          border-radius: 6px;
+          box-sizing: border-box;
+        "
+      />
+      <small style="display: block; margin-top: 8px; color: #888;">
+        Wähle zwischen 3 und 12 Kreisen
+      </small>
+    </div>
+
+    <div style="margin: 20px 0;">
+      <button id="modal-generate-btn" style="
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 10px;
+      ">
+        ✨ Slides generieren
+      </button>
+      
+      <button id="modal-refresh-btn" style="
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 10px;
+      ">
+        🔄 Nur Kreise aktualisieren
+      </button>
+
+      <button id="modal-close-btn" style="
+        width: 100%;
+        padding: 12px;
+        background: #ddd;
+        color: #333;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      ">
+        ✕ Schließen
+      </button>
+    </div>
+  `;
+
+  modal.appendChild(content);
+  document.body.appendChild(modal);
+
+  // Event handlers
+  const circleInput = document.getElementById('modal-circle-count');
+  const generateBtn = document.getElementById('modal-generate-btn');
+  const refreshBtn = document.getElementById('modal-refresh-btn');
+  const closeBtn = document.getElementById('modal-close-btn');
+
+  circleInput.value = localStorage.getItem('overview-circle-count') || '10';
+
+  generateBtn.addEventListener('click', () => {
+    const count = parseInt(circleInput.value, 10);
+    if (count >= 3 && count <= 12) {
+      handleGenerateSlides(count);
+      modal.remove();
+    } else {
+      alert('Bitte gib eine Zahl zwischen 3 und 12 ein!');
+    }
+  });
+
+  refreshBtn.addEventListener('click', () => {
+    const count = parseInt(circleInput.value, 10);
+    if (count >= 3 && count <= 12) {
+      handleRefreshOverview(count);
+      modal.remove();
+    } else {
+      alert('Bitte gib eine Zahl zwischen 3 und 12 ein!');
+    }
+  });
+
+  closeBtn.addEventListener('click', () => {
+    modal.remove();
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+
+  console.log('[EditMode] Circle settings modal opened');
+}
+
+/**
+ * ===================================
+ * SLIDE GENERATION HANDLERS
+ * ===================================
+ */
+
+/**
+ * Generate and insert new slides
+ */
+function handleGenerateSlides(circleCount) {
+  if (circleCount < 3 || circleCount > 12) {
+    showNotification('❌ Anzahl muss zwischen 3 und 12 liegen!', 'error');
+    return;
+  }
+
+  console.log('[EditMode] Generating', circleCount, 'slides...');
+
+  try {
+    // Generate HTML
+    const newSlidesHTML = generateCompleteSlidesHTML(
+      circleCount,
+      'Neue Präsentation',
+      'Automatisch generiert',
+      'Autor'
+    );
+
+    // Find and replace slides container
+    const slidesContainer = document.querySelector('.reveal .slides');
+    if (!slidesContainer) {
+      showNotification('❌ Slides Container nicht gefunden!', 'error');
+      return;
+    }
+
+    // Replace slides
+    slidesContainer.innerHTML = newSlidesHTML;
+
+    // Save metadata
+    saveGenerationMetadata(circleCount, {
+      title: 'Neue Präsentation',
+      subtitle: 'Automatisch generiert',
+      author: 'Autor'
+    });
+
+    // Reinitialize Reveal.js
+    if (typeof Reveal !== 'undefined') {
+      Reveal.sync();
+      console.log('[EditMode] Reveal.js synced');
+    }
+
+    // Re-setup slide editing for new slides
+    setTimeout(() => {
+      setupSlideEditing();
+      setupCircleNavigationFromEditMode();
+      // Re-setup navigation boxes for new slides (called from presentation.js)
+      if (window.setupNavigationBoxes) {
+        window.setupNavigationBoxes();
+      }
+      showNotification(`✨ ${circleCount} Slides generiert und eingefügt!`, 'success');
+    }, 500);
+
+  } catch (error) {
+    console.error('[EditMode] Generation error:', error);
+    showNotification('❌ Fehler beim Generieren der Slides: ' + error.message, 'error');
+  }
+}
+
+/**
+ * Refresh only the overview circle arrangement
+ */
+function handleRefreshOverview(circleCount) {
+  if (circleCount < 3 || circleCount > 12) {
+    showNotification('❌ Anzahl muss zwischen 3 und 12 liegen!', 'error');
+    return;
+  }
+
+  try {
+    const overviewSection = document.querySelector('#overview .spiral-container');
+    if (!overviewSection) {
+      showNotification('❌ Overview Sektion nicht gefunden!', 'error');
+      return;
+    }
+
+    // Find the container for circles
+    let circleContainer = overviewSection.querySelector('.circles-container');
+    if (!circleContainer) {
+      // Create if doesn't exist
+      const titleElem = overviewSection.querySelector('.overview-title');
+      if (titleElem) {
+        circleContainer = document.createElement('div');
+        circleContainer.className = 'circles-container';
+        overviewSection.insertBefore(circleContainer, titleElem.nextSibling);
+      }
+    }
+
+    if (!circleContainer) {
+      showNotification('❌ Circle Container nicht gefunden!', 'error');
+      return;
+    }
+
+    // Remove old circles
+    overviewSection.querySelectorAll('.circle-item').forEach(el => el.remove());
+
+    // Insert new circles
+    circleContainer.innerHTML = generateOverviewCircles(circleCount);
+
+    // Save count
+    localStorage.setItem('overview-circle-count', circleCount.toString());
+
+    showNotification(`🔄 Übersicht mit ${circleCount} Kreisen aktualisiert!`, 'success');
+    console.log('[EditMode] Overview refreshed with', circleCount, 'circles');
+
+  } catch (error) {
+    console.error('[EditMode] Overview refresh error:', error);
+    showNotification('❌ Fehler beim Aktualisieren der Übersicht!', 'error');
+  }
+}
+
+/**
+ * Setup circle navigation for dynamically generated slides (called from handleGenerateSlides)
+ * Note: presentation.js already has setupCircleNavigation, we use local version there
+ */
+export function setupCircleNavigationFromEditMode() {
+  const circles = document.querySelectorAll('.circle-item');
+  if (!circles.length) {
+    console.warn('[EditMode] No circle items found');
+    return;
+  }
+
+  console.log('[EditMode] Setting up circle navigation for', circles.length, 'circles');
+
+  circles.forEach((circle, index) => {
+    circle.addEventListener('click', () => {
+      const slideNum = index + 1;
+      if (typeof Reveal !== 'undefined') {
+        Reveal.slide(slideNum, 0); // Navigate to group-intro (v=0) - die Hauptslide
+      }
+      console.log('[EditMode] Navigated to slide', slideNum, 'v=0 (group-intro)');
+    });
+  });
+}
+
+/**
+ * ===================================
+ * MENU ADMINISTRATION HANDLERS
+ * ===================================
  */
 function collectAdminChanges() {
   const contentData = getContentData();

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Slide Generator Test</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    textarea { width: 100%; height: 400px; }
+    button { padding: 10px 20px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1>Slide Generator Test</h1>
+  
+  <div>
+    <label for="circle-count">Circle Count:</label>
+    <input id="circle-count" type="number" min="3" max="12" value="5">
+  </div>
+  
+  <button onclick="testGenerator()">Generate Slides HTML</button>
+  
+  <textarea id="output" readonly></textarea>
+
+  <script type="module">
+    import { generateCompleteSlidesHTML, generateOverviewCircles } from './js/modules/slide-generator.js';
+    
+    window.testGenerator = function() {
+      const count = parseInt(document.getElementById('circle-count').value, 10);
+      try {
+        const html = generateCompleteSlidesHTML(count, 'Test Title', 'Test Subtitle', 'Test Author');
+        document.getElementById('output').value = html.substring(0, 2000);
+        console.log('✅ Generated', count, 'slides successfully');
+      } catch (error) {
+        console.error('❌ Error:', error);
+        document.getElementById('output').value = 'Error: ' + error.message;
+      }
+    };
+    
+    console.log('✅ Module loaded successfully');
+  </script>
+</body>
+</html>

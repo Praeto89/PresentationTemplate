@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Overlay Test</title>
+  <link rel="stylesheet" href="css/editor.css">
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    button { padding: 12px 20px; font-size: 16px; margin: 10px 0; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Admin Overlay Test</h1>
+  
+  <button onclick="showTestOverlay()">📊 Show Test Overlay</button>
+  <button onclick="hideTestOverlay()">❌ Hide Overlay</button>
+  <button onclick="location.reload()">🔄 Reload</button>
+
+  <script type="module">
+    import { showOverlay, hideOverlay } from './src/ui/overlay.js';
+    
+    window.showTestOverlay = function() {
+      showOverlay('Test Overlay - Admin Panel');
+      console.log('✅ showOverlay() called');
+    };
+    
+    window.hideTestOverlay = function() {
+      hideOverlay();
+      console.log('✅ hideOverlay() called');
+    };
+    
+    // Auto show on load
+    window.addEventListener('load', () => {
+      console.log('Page loaded');
+      setTimeout(() => {
+        showTestOverlay();
+      }, 500);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Debug - Overlay Check</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+    .debug-box { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; }
+    button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    pre { background: #333; color: #0f0; padding: 15px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Overlay Debug</h1>
+  
+  <div class="debug-box">
+    <button onclick="checkOverlay()">Check Overlay Status</button>
+    <button onclick="location.reload()">Reload Page</button>
+    <button onclick="window.open('http://localhost:8000/?mode=edit', '_blank')">Open Edit Mode</button>
+  </div>
+  
+  <div id="output" class="debug-box"></div>
+
+  <script>
+    function checkOverlay() {
+      const output = document.getElementById('output');
+      const results = [];
+      
+      results.push('=== OVERLAY STATUS ===\n');
+      
+      // Check if overlay element exists
+      const overlay = document.querySelector('.edit-overlay');
+      results.push(`✓ Overlay Element exists: ${!!overlay}`);
+      
+      if (overlay) {
+        results.push(`  - className: ${overlay.className}`);
+        results.push(`  - is-hidden class: ${overlay.classList.contains('is-hidden')}`);
+        results.push(`  - display: ${window.getComputedStyle(overlay).display}`);
+        results.push(`  - visibility: ${window.getComputedStyle(overlay).visibility}`);
+        results.push(`  - opacity: ${window.getComputedStyle(overlay).opacity}`);
+        results.push(`  - z-index: ${window.getComputedStyle(overlay).zIndex}`);
+      }
+      
+      // Check for edit-mode class
+      results.push(`\n✓ Body has edit-mode class: ${document.body.classList.contains('edit-mode')}`);
+      
+      // Check for CSS file
+      const styleSheets = Array.from(document.styleSheets)
+        .filter(sheet => sheet.href && sheet.href.includes('editor.css'));
+      results.push(`✓ editor.css loaded: ${styleSheets.length > 0}`);
+      
+      // Check overlay content
+      if (overlay) {
+        const content = overlay.querySelector('.overlay-content');
+        const title = overlay.querySelector('.overlay-title');
+        const tabs = overlay.querySelectorAll('.tab-button');
+        
+        results.push(`\n=== OVERLAY CONTENT ===`);
+        results.push(`✓ overlay-content: ${!!content}`);
+        results.push(`✓ overlay-title: ${!!title} - "${title?.textContent}"`);
+        results.push(`✓ Tab buttons: ${tabs.length}`);
+        tabs.forEach(t => {
+          results.push(`  - ${t.textContent} (data-tab=${t.dataset.tab})`);
+        });
+      }
+      
+      // Check JavaScript
+      results.push(`\n=== JAVASCRIPT ===`);
+      results.push(`✓ showOverlay function: ${typeof showOverlay === 'function' ? 'exists' : 'missing'}`);
+      results.push(`✓ Reveal: ${typeof Reveal !== 'undefined' ? 'loaded' : 'missing'}`);
+      
+      output.innerHTML = '<pre>' + results.join('\n') + '</pre>';
+    }
+    
+    // Auto-check on load if in edit mode
+    if (window.location.search.includes('mode=edit')) {
+      setTimeout(checkOverlay, 1000);
+    }
+  </script>
+</body>
+</html>
