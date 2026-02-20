@@ -7,7 +7,20 @@
       "id": 1,
       "title": "Beweggründe",
       "color": "#4CAF50",
-      "subtopics": ["Persönlicher Zugang", "Berufliche Erfahrungen", "Relevanz"],
+      "subtopics": [
+        {
+          "title": "Persönlicher Zugang",
+          "content": "Meine persönlichen Beweggründe und Motivationen für die Auseinandersetzung mit diesem Thema basieren auf eigenen Erfahrungen und Überzeugungen."
+        },
+        {
+          "title": "Berufliche Erfahrungen",
+          "content": "In meiner beruflichen Tätigkeit habe ich folgende Erfahrungen gemacht, die mich zu diesem Thema führten..."
+        },
+        {
+          "title": "Relevanz",
+          "content": "Dieses Thema ist relevant, weil es folgende wichtige Fragen aufwirft und beantwortet..."
+        }
+      ],
       "slides": [
         {
           "title": "Beweggründe - Übersicht",
@@ -19,7 +32,20 @@
       "id": 2,
       "title": "Thesen",
       "color": "#2196F3",
-      "subtopics": ["Hauptthese", "Fragestellung", "Hypothesen"],
+      "subtopics": [
+        {
+          "title": "Hauptthese",
+          "content": "Meine Hauptthese besagt, dass..."
+        },
+        {
+          "title": "Fragestellung",
+          "content": "Die zentrale Forschungsfrage, die ich beantworte, lautet..."
+        },
+        {
+          "title": "Hypothesen",
+          "content": "Basierend auf meiner Forschung habe ich folgende Hypothesen entwickelt..."
+        }
+      ],
       "slides": [
         {
           "title": "Thesen - Übersicht",
@@ -31,7 +57,20 @@
       "id": 3,
       "title": "Hermeneutischer Zugang",
       "color": "#FF9800",
-      "subtopics": ["Methodologie", "Verstehensansatz", "Interpretation"],
+      "subtopics": [
+        {
+          "title": "Methodologie",
+          "content": "Meine methodische Herangehensweise folgt dem hermeneutischen Verfahren, das..."
+        },
+        {
+          "title": "Verstehensansatz",
+          "content": "Das Verstehen als grundlegende Methode bedeutet in meinem Forschungskontext..."
+        },
+        {
+          "title": "Interpretation",
+          "content": "Die Interpretationen, die ich durchgeführt habe, zeigen folgende Ergebnisse..."
+        }
+      ],
       "slides": [
         {
           "title": "Hermeneutischer Zugang",
@@ -43,7 +82,20 @@
       "id": 4,
       "title": "Ethik & Philosophie",
       "color": "#9C27B0",
-      "subtopics": ["Ethische Grundlagen", "Philosophischer Rahmen", "Wertebasis"],
+      "subtopics": [
+        {
+          "title": "Ethische Grundlagen",
+          "content": "Die ethischen Grundlagen meiner Arbeit basieren auf dem Verständnis, dass..."
+        },
+        {
+          "title": "Philosophischer Rahmen",
+          "content": "Philosophisch argumentiere ich von der Perspektive, dass..."
+        },
+        {
+          "title": "Wertebasis",
+          "content": "Meine Wertebasis ist geprägt von folgenden Prinzipien..."
+        }
+      ],
       "slides": [
         {
           "title": "Ethik & Philosophie",
@@ -55,7 +107,20 @@
       "id": 5,
       "title": "Felder & Dederich",
       "color": "#F44336",
-      "subtopics": ["Theoretische Bezüge", "Wissenschaftliche Einordnung", "Diskurs"],
+      "subtopics": [
+        {
+          "title": "Theoretische Bezüge",
+          "content": "Die Theorien von Felder und Dederich bieten folgende Perspektiven..."
+        },
+        {
+          "title": "Wissenschaftliche Einordnung",
+          "content": "In der wissenschaftlichen Diskurslandschaft positionieren sich diese Ansätze..."
+        },
+        {
+          "title": "Diskurs",
+          "content": "Der aktuelle akademische Diskurs zu diesem Thema behandelt..."
+        }
+      ],
       "slides": [
         {
           "title": "Felder & Dederich",
@@ -67,7 +132,20 @@
       "id": 6,
       "title": "Ordnung der Erkenntnisse",
       "color": "#009688",
-      "subtopics": ["Kategorisierung", "Zusammenführung", "Strukturierung"],
+      "subtopics": [
+        {
+          "title": "Kategorisierung",
+          "content": "Die Erkenntnisse lassen sich in folgende Kategorien einteilen..."
+        },
+        {
+          "title": "Zusammenführung",
+          "content": "Die Integration der verschiedenen Erkenntnisse ergibt folgendes Gesamtbild..."
+        },
+        {
+          "title": "Strukturierung",
+          "content": "Die strukturierte Darstellung zeigt die Hierarchien und Beziehungen..."
+        }
+      ],
       "slides": [
         {
           "title": "Ordnung der Erkenntnisse",
@@ -79,7 +157,20 @@
       "id": 7,
       "title": "Beratung & Kooperation",
       "color": "#FF5722",
-      "subtopics": ["Heilpädagogischer Kontext", "Beratungskonzepte", "Kooperationsmodelle"],
+      "subtopics": [
+        {
+          "title": "Heilpädagogischer Kontext",
+          "content": "Im heilpädagogischen Kontext haben meine Erkenntnisse folgende Bedeutung..."
+        },
+        {
+          "title": "Beratungskonzepte",
+          "content": "Ich entwickelte folgende Beratungskonzepte basierend auf meinen Ergebnissen..."
+        },
+        {
+          "title": "Kooperationsmodelle",
+          "content": "Die Kooperationsmodelle, die ich vorschlage, basieren auf..."
+        }
+      ],
       "slides": [
         {
           "title": "Beratung & Kooperation",
@@ -91,7 +182,20 @@
       "id": 8,
       "title": "Praxisfolgen",
       "color": "#607D8B",
-      "subtopics": ["Handlungsempfehlungen", "Praktische Implikationen", "Ausblick"],
+      "subtopics": [
+        {
+          "title": "Handlungsempfehlungen",
+          "content": "Basierend auf meinen Forschungsergebnissen empfehle ich folgende Handlungen..."
+        },
+        {
+          "title": "Praktische Implikationen",
+          "content": "Die praktischen Auswirkungen meiner Erkenntnisse sind..."
+        },
+        {
+          "title": "Ausblick",
+          "content": "Zukünftige Forschungsrichtungen und offene Fragen umfassen..."
+        }
+      ],
       "slides": [
         {
           "title": "Praxisfolgen",

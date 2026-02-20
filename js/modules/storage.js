@@ -5,6 +5,7 @@
  */
 
 import { setContentData, initMenu } from './menu.js';
+import { getCurrentStudent, getCurrentStudentIndex, saveStudentState, loadStudentState } from './student-manager.js';
 
 let currentFileHandle = null;
 let contentData = null;
@@ -131,6 +132,34 @@ export async function saveContent() {
     } else {
         // Fallback: Download als Datei
         downloadContentAsFile(jsonString);
+    }
+}
+
+/**
+ * Speichert die komplette index.html auf dem Save-Server
+ */
+export async function saveIndexHTML() {
+    try {
+        const htmlContent = document.documentElement.outerHTML;
+        
+        const response = await fetch('http://localhost:8001/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ html: htmlContent })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('[Storage] HTML saved to server:', result);
+        return true;
+    } catch (error) {
+        console.error('[Storage] Error saving HTML to server:', error);
+        return false;
     }
 }
 
@@ -453,4 +482,85 @@ export function removeBookmark(parentId, childIndex) {
 export function clearAllBookmarks() {
     saveBookmarks([]);
     console.log('[Storage] All bookmarks cleared');
+}
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════
+ * LAYER/STUDENT-AWARE FUNKTIONEN
+ * ════════════════════════════════════════════════════════════════════════════
+ */
+
+/**
+ * Speichert Slide-Edits für den aktuellen Schüler
+ * Wenn Layer-Modus aus, speichert global wie bisher
+ * @param {Object} edits - Slide-Edit-Daten
+ */
+export function saveStudentSlideEdits(edits) {
+    const student = getCurrentStudent();
+    
+    if (student) {
+        // Layer-Modus aktiv: speichere für aktuellen Schüler
+        student.slideEdits = edits;
+        saveStudentState(getCurrentStudentIndex(), { slideEdits: edits });
+        console.log('[Storage] Saved slide edits for student:', student.name);
+    } else {
+        // Layer-Modus aus: speichere global wie bisher
+        saveSlideEdits(edits);
+        console.log('[Storage] Saved slide edits globally');
+    }
+}
+
+/**
+ * Lädt Slide-Edits für den aktuellen Schüler
+ * @returns {Object} Slide-Edit-Daten
+ */
+export function loadStudentSlideEdits() {
+    const student = getCurrentStudent();
+    
+    if (student) {
+        // Layer-Modus aktiv: lade für aktuellen Schüler
+        const state = loadStudentState(getCurrentStudentIndex());
+        console.log('[Storage] Loaded slide edits for student:', student.name);
+        return state.slideEdits;
+    } else {
+        // Layer-Modus aus: lade global wie bisher
+        return getSlideEdits();
+    }
+}
+
+/**
+ * Speichert Bookmarks für den aktuellen Schüler
+ * @param {Array} bookmarks - Array von Bookmark-Objekten
+ */
+export function saveStudentBookmarks(bookmarks) {
+    const student = getCurrentStudent();
+    
+    if (student) {
+        // Layer-Modus aktiv: speichere für aktuellen Schüler
+        student.bookmarks = bookmarks;
+        saveStudentState(getCurrentStudentIndex(), { bookmarks });
+        console.log('[Storage] Saved bookmarks for student:', student.name);
+    } else {
+        // Layer-Modus aus: speichere global wie bisher
+        saveBookmarks(bookmarks);
+        console.log('[Storage] Saved bookmarks globally');
+    }
+}
+
+/**
+ * Lädt Bookmarks für den aktuellen Schüler
+ * @returns {Array}
+ */
+export function loadStudentBookmarks() {
+    const student = getCurrentStudent();
+    
+    if (student) {
+        // Layer-Modus aktiv: lade für aktuellen Schüler
+        const state = loadStudentState(getCurrentStudentIndex());
+        console.log('[Storage] Loaded bookmarks for student:', student.name);
+        return state.bookmarks;
+    } else {
+        // Layer-Modus aus: lade global wie bisher
+        return getBookmarks();
+    }
 }

@@ -600,3 +600,142 @@ body:not(.edit-mode) .editor-controls {
   border-bottom: 2px solid #667eea;
   padding-bottom: 10px;
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   STUDENT MANAGER STYLES
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.student-manager-section {
+  padding: 0;
+}
+
+.student-manager-section h3 {
+  margin: 0 0 20px 0;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 18px;
+}
+
+.setting-group {
+  padding: 15px;
+  margin: 0;
+  border-bottom: 1px solid #eee;
+}
+
+.setting-group:last-child {
+  border-bottom: none;
+}
+
+.setting-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.setting-group input[type="checkbox"] {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.setting-group input[type="checkbox"] + span {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.setting-group input[type="text"],
+.setting-group input[type="number"],
+.setting-group select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.setting-group input[type="text"]:focus,
+.setting-group input[type="number"]:focus,
+.setting-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+#layer-controls {
+  background: #f9f9f9;
+  border-top: 2px solid #eee;
+}
+
+#layer-controls h4 {
+  margin: 0;
+  padding: 15px 15px 10px 15px;
+  color: #333;
+  font-size: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Student Drag-Drop List */
+.student-list-item {
+  transition: all 0.2s ease;
+}
+
+.student-list-item:hover {
+  background: #f0f0f0 !important;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.student-list-item.dragging {
+  opacity: 0.5;
+  background: #e0e0e0 !important;
+}
+
+.student-list-item.drag-over {
+  background: #e3f2fd !important;
+  border-top: 2px solid #2196F3;
+}
+
+/* Admin Buttons */
+.admin-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.admin-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.admin-btn-primary:active {
+  transform: translateY(0);
+}
+
+.admin-btn-danger {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.admin-btn-danger:hover {
+  background: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+}
+
+.admin-btn-danger:active {
+  transform: translateY(0);
+}

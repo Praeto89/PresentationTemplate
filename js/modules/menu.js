@@ -20,6 +20,7 @@ import { getBookmarks, toggleBookmarkStorage } from './storage.js';
 import { normalizeSubtopic, normalizeTopic } from './utils/normalize.js';
 import { computeLayout, applyLayoutToCSS, updateTilePositions, updateLayout } from './menu-layout.js';
 import { debounce } from './utils/math.js';
+import { showSubtopicDetail, closeSubtopicDetail } from './subtopic-detail.js';
 
 let contentData = null;
 let layoutCache = null;
@@ -642,7 +643,6 @@ function restoreBookmarks() {
 function handleChildnodeClick(parentId, childIndex, subtopicTitle) {
     const viewportController = getViewportController();
     const currentState = viewportController.getCurrentState();
-    
     // Nur reagieren wenn im focused State
     if (currentState !== 'focused') {
         console.log(`[Menu] Childnode click ignored - not in focused state (${currentState})`);
@@ -651,18 +651,8 @@ function handleChildnodeClick(parentId, childIndex, subtopicTitle) {
     
     console.log(`[Menu] Childnode clicked: Topic ${parentId}, Child ${childIndex} - "${subtopicTitle}"`);
     
-    // TODO: Implementiere Navigation zum Subtopic-Content
-    // Für jetzt: Visual Feedback
-    const childTile = document.querySelector(
-        `.childnode-tile[data-parent-id="${parentId}"][data-child-index="${childIndex}"]`
-    );
-    
-    if (childTile) {
-        childTile.style.transform = 'translate(-50%, -50%) scale(1.15)';
-        setTimeout(() => {
-            childTile.style.transform = '';
-        }, 200);
-    }
+    // Navigate to subtopic detail content
+    showSubtopicDetail(parentId, childIndex, subtopicTitle);
 }
 
 /**

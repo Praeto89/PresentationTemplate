@@ -15,6 +15,7 @@ import {
   updateContentData,
   getSlideEdits,
   saveSlideEdits,
+  saveIndexHTML,
 } from './storage.js';
 import {
   showOverlay,
@@ -28,10 +29,30 @@ import {
 import { normalizeSubtopic } from './utils/normalize.js';
 import {
   generateCompleteSlidesHTML,
-  generateOverviewCircles,
   saveGenerationMetadata,
   loadGenerationMetadata,
 } from './slide-generator.js';
+import {
+  isLayerModeEnabled,
+  setLayerMode,
+  getLayerCount,
+  createStudentConfigs,
+  updateLayerCount,
+  getCurrentStudent,
+  getCurrentStudentIndex,
+  getStudentConfig,
+  updateStudentConfig,
+  deleteStudent,
+  getAllStudents,
+} from './student-manager.js';
+import {
+  initStudentLayerController,
+  handleStudentSwitch,
+  reloadPresentationForStudent,
+  updateStudentDropdown,
+  toggleStudentDropdownVisibility,
+} from './student-layer-controller.js';
+import { showPDFExportGuide } from './pdf-export.js';
 
 let editModeActive = false;
 let currentEditingSlide = null;
@@ -119,6 +140,44 @@ function activateEditMode() {
   
   document.body.appendChild(circleSettingsBtn);
 
+  // Add Schüler Manager Button (unterhalb Kreise einstellen)
+  const schuelerManagerBtn = document.createElement('button');
+  schuelerManagerBtn.className = 'schueler-manager-btn-edit-mode';
+  schuelerManagerBtn.innerHTML = '👥 Schüler verwalten';
+  schuelerManagerBtn.style.cssText = `
+    position: fixed;
+    bottom: 50px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9998;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  `;
+  
+  schuelerManagerBtn.addEventListener('mouseover', () => {
+    schuelerManagerBtn.style.transform = 'translateY(-2px)';
+    schuelerManagerBtn.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.6)';
+  });
+  
+  schuelerManagerBtn.addEventListener('mouseout', () => {
+    schuelerManagerBtn.style.transform = 'translateY(0)';
+    schuelerManagerBtn.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+  });
+  
+  schuelerManagerBtn.addEventListener('click', () => {
+    showOverlay('Bearbeitungsmodus');
+    switchTab('students');
+  });
+  
+  document.body.appendChild(schuelerManagerBtn);
+
   // Initialize Editor Features
   if (typeof Reveal !== 'undefined' && Reveal.isReady) {
     setupSlideEditing();
@@ -132,6 +191,13 @@ function activateEditMode() {
 
   // Initialize Admin Features
   setupAdminUI();
+  
+  // Initialize Student Manager UI (mit Error Handling)
+  try {
+    setupStudentManagerUI();
+  } catch (error) {
+    console.warn('[EditMode] Error setting up student manager UI:', error);
+  }
 
   // Show unified overlay with tabs
   showOverlay('Bearbeitungsmodus');
@@ -689,6 +755,467 @@ function showNotification(message, type = 'info') {
   document.body.appendChild(notif);
 
   setTimeout(() => notif.remove(), 3000);
+}
+
+/**
+ * ===================================
+ * STUDENT MANAGER UI
+ * ===================================
+ */
+function setupStudentManagerUI() {
+  const studentManagerHTML = `
+    <div class="student-manager-section">
+      <h3>Layer-Modus Einstellungen</h3>
+      
+      <div class="setting-group">
+        <label>
+          <input type="checkbox" id="layer-mode-toggle" ${isLayerModeEnabled() ? 'checked' : ''}>
+          <span>Layer-Modus aktivieren</span>
+        </label>
+      </div>
+      
+      <div id="layer-controls">
+        <h4>Schüler verwalten</h4>
+        
+        <div class="setting-group">
+          <button id="deactivate-layer-mode-btn" class="admin-btn-danger" style="margin-bottom: 15px;">⚠️ Layer-Modus deaktivieren</button>
+          <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Alle Schülerdaten werden gelöscht!</p>
+        </div>
+        
+        <div class="setting-group">
+          <label for="layer-count-input">Anzahl Schüler (1-25):</label>
+          <input 
+            type="number" 
+            id="layer-count-input" 
+            min="1" 
+            max="25" 
+            value="${getLayerCount()}"
+            style="width: 60px; padding: 5px;"
+          >
+          <button id="layer-count-update-btn" class="admin-btn-primary" style="margin-left: 10px;">Aktualisieren</button>
+        </div>
+        
+        <div class="setting-group">
+          <label for="student-select-edit">Schüler selektieren:</label>
+          <select id="student-select-edit" style="padding: 5px; min-width: 200px;">
+            <!-- Dynamisch gefüllt -->
+          </select>
+        </div>
+        
+        <div class="setting-group">
+          <label for="student-name-input">Name des aktuellen Schülers:</label>
+          <input 
+            type="text" 
+            id="student-name-input" 
+            placeholder="z.B. Schüler 1"
+            style="padding: 5px; width: 200px;"
+          >
+          <button id="student-name-save-btn" class="admin-btn-primary" style="margin-left: 10px;">Speichern</button>
+        </div>
+        
+        <div class="setting-group">
+          <label>
+            <input type="checkbox" id="use-student-name-as-title">
+            <span>Schülername als Titel in Übersichtsfolie anzeigen</span>
+          </label>
+        </div>
+        
+        <div class="setting-group">
+          <label for="student-topic-count-input">Anzahl Kreise für aktuellen Schüler (3-12):</label>
+          <input 
+            type="number" 
+            id="student-topic-count-input" 
+            min="3" 
+            max="12"
+            value="8"
+            style="width: 60px; padding: 5px;"
+          >
+          <button id="student-topic-count-save-btn" class="admin-btn-primary" style="margin-left: 10px;">Speichern & Neu laden</button>
+        </div>
+        
+        <div class="setting-group">
+          <button id="student-delete-btn" class="admin-btn-danger" style="margin-top: 10px;">Aktuellen Schüler löschen</button>
+          <button id="student-reload-btn" class="admin-btn-primary" style="margin-left: 10px;">Präsentation neu laden</button>
+          <button id="pdf-export-btn" class="admin-btn-primary" style="margin-left: 10px;">📄 PDF-Export</button>
+        </div>
+        
+        <!-- Student List mit Drag-Drop -->
+        <div id="student-list-container"></div>
+      </div>
+    </div>
+  `;
+
+  setTabContent('students', studentManagerHTML);
+  setupStudentManagerListeners();
+  updateStudentSelectDropdown();
+  
+  // Initialisiere Drag-Drop (mit Error Handling)
+  try {
+    import('./student-drag-drop.js').then(({ initStudentDragDrop, renderStudentList }) => {
+      if (isLayerModeEnabled() && getLayerCount() > 0) {
+        renderStudentList();
+        initStudentDragDrop();
+      }
+    }).catch(error => {
+      console.warn('[EditMode] Error loading student drag-drop module:', error);
+    });
+  } catch (error) {
+    console.warn('[EditMode] Error initializing drag-drop:', error);
+  }
+}
+
+/**
+ * Setzt Event-Listener für Student Manager UI
+ */
+function setupStudentManagerListeners() {
+  try {
+    // Layer-Mode Toggle
+    const layerModeToggle = document.getElementById('layer-mode-toggle');
+    const layerControls = document.getElementById('layer-controls');
+    
+    if (layerModeToggle && layerControls) {
+      // Set initial display state based on current layer mode
+      layerControls.style.display = isLayerModeEnabled() ? 'block' : 'none';
+      
+      layerModeToggle.addEventListener('change', (e) => {
+        const isEnabled = e.target.checked;
+        
+        setLayerMode(isEnabled);
+        layerControls.style.display = isEnabled ? 'block' : 'none';
+        toggleStudentDropdownVisibility();
+        
+        // Wenn aktiviert: erstelle 0 Schüler (Nutzer kann dann die Anzahl wählen)
+        if (isEnabled && getLayerCount() === 0) {
+          // Initial state - Nutzer wählt Anzahl
+          const layerCountInput = document.getElementById('layer-count-input');
+          if (layerCountInput) {
+            layerCountInput.value = 0;
+          }
+        }
+      });
+    }
+    
+    // Deactivate Layer Mode Button - Use Event Delegation
+    try {
+      const tabContent = document.querySelector('.tab-content');
+      if (tabContent) {
+        tabContent.addEventListener('click', (e) => {
+          if (e.target.id === 'deactivate-layer-mode-btn' || e.target.closest('#deactivate-layer-mode-btn')) {
+            const deactivateBtn = document.getElementById('deactivate-layer-mode-btn');
+            const layerControls = document.getElementById('layer-controls');
+            const layerModeToggle = document.getElementById('layer-mode-toggle');
+            
+            const confirmed = confirm(
+              '⚠️ WARNUNG: Layer-Modus deaktivieren?\n\n' +
+              'Dies wird ALLE ' + getLayerCount() + ' Schüler und ihre Daten (Markierungen, Lesezeichen, Notizen) löschen!\n\n' +
+              'Diese Aktion kann nicht rückgängig gemacht werden.\n\n' +
+              'Möchten Sie fortfahren?'
+            );
+            
+            if (confirmed) {
+              setLayerMode(false);
+              if (layerControls) layerControls.style.display = 'none';
+              if (layerModeToggle) layerModeToggle.checked = false;
+              toggleStudentDropdownVisibility();
+              showNotification('Layer-Modus deaktiviert. Alle Schülerdaten wurden gelöscht.', 'success');
+            }
+          }
+        });
+      }
+    } catch (buttonError) {
+      console.error('[EditMode] Error setting up deactivate button:', buttonError);
+    }
+    
+    console.log('[EditMode] All student manager listeners setup complete');
+  } catch (error) {
+    console.error('[EditMode] Error in setupStudentManagerListeners:', error);
+  }
+  
+  // Layer Count Update - Use Event Delegation
+  const tabContent = document.querySelector('.tab-content');
+  if (tabContent) {
+    tabContent.addEventListener('click', (e) => {
+      if (e.target.id === 'layer-count-update-btn' || e.target.closest('#layer-count-update-btn')) {
+        console.log('[EditMode] Layer count update button clicked');
+        const layerCountInput = document.getElementById('layer-count-input');
+        if (!layerCountInput) return;
+        
+        const newCount = parseInt(layerCountInput.value);
+        
+        if (newCount < 1 || newCount > 25) {
+          alert('Ungültige Anzahl. Bitte zwischen 1-25 wählen.');
+          return;
+        }
+        
+        const currentCount = getLayerCount();
+        
+        if (newCount < currentCount) {
+          // Warnung bei Reduktion
+          const confirmed = confirm(
+            `${currentCount - newCount} Schüler werden gelöscht. Alle ihre Edits gehen verloren. Fortfahren?`
+          );
+          if (!confirmed) return;
+        }
+        
+        updateLayerCount(newCount);
+        createStudentConfigs(newCount, true);
+        
+        // Aktualisiere UI
+        updateStudentSelectDropdown();
+        updateStudentManagerDisplay();
+        updateStudentDropdown(getAllStudents());
+        toggleStudentDropdownVisibility();
+        
+        console.log('[EditMode] Layer count updated to:', newCount);
+      }
+    });
+  } else {
+    // Fallback if tab-content not found - attach directly
+    const layerCountUpdateBtn = document.getElementById('layer-count-update-btn');
+    const layerCountInput = document.getElementById('layer-count-input');
+    
+    if (layerCountUpdateBtn && layerCountInput) {
+      layerCountUpdateBtn.addEventListener('click', () => {
+        const newCount = parseInt(layerCountInput.value);
+        
+        if (newCount < 1 || newCount > 25) {
+          alert('Ungültige Anzahl. Bitte zwischen 1-25 wählen.');
+          return;
+        }
+        
+        const currentCount = getLayerCount();
+        
+        if (newCount < currentCount) {
+          // Warnung bei Reduktion
+          const confirmed = confirm(
+            `${currentCount - newCount} Schüler werden gelöscht. Alle ihre Edits gehen verloren. Fortfahren?`
+          );
+          if (!confirmed) return;
+        }
+        
+        updateLayerCount(newCount);
+        createStudentConfigs(newCount, true);
+        
+        // Aktualisiere UI
+        updateStudentSelectDropdown();
+        updateStudentManagerDisplay();
+        updateStudentDropdown(getAllStudents());
+        toggleStudentDropdownVisibility();
+        
+        console.log('[EditMode] Layer count updated to:', newCount);
+      });
+    }
+  }
+  
+  // Student Select Dropdown
+  const studentSelectEdit = document.getElementById('student-select-edit');
+  if (studentSelectEdit) {
+    studentSelectEdit.addEventListener('change', async (e) => {
+      const newIndex = parseInt(e.target.value);
+      await handleStudentSwitch(newIndex);
+      updateStudentManagerDisplay();
+    });
+  }
+  
+  // Student Name Save
+  const studentNameInput = document.getElementById('student-name-input');
+  const studentNameSaveBtn = document.getElementById('student-name-save-btn');
+  
+  if (studentNameSaveBtn && studentNameInput) {
+    studentNameSaveBtn.addEventListener('click', () => {
+      const newName = studentNameInput.value.trim();
+      
+      if (!newName) {
+        alert('Bitte einen Namen eingeben.');
+        return;
+      }
+      
+      const index = getCurrentStudentIndex();
+      updateStudentConfig(index, { name: newName });
+      updateStudentSelectDropdown();
+      updateStudentDropdown(getAllStudents());
+      
+      // Update title if option is enabled
+      const useTitleCheckbox = document.getElementById('use-student-name-as-title');
+      if (useTitleCheckbox && useTitleCheckbox.checked) {
+        updateOverviewTitle(newName);
+        // Save HTML to server
+        saveIndexHTML().catch(err => console.error('[EditMode] Failed to save HTML:', err));
+      }
+      
+      console.log('[EditMode] Student name updated to:', newName);
+    });
+  }
+  
+  // Use Student Name as Title Checkbox
+  const useTitleCheckbox = document.getElementById('use-student-name-as-title');
+  if (useTitleCheckbox) {
+    useTitleCheckbox.addEventListener('change', (e) => {
+      const index = getCurrentStudentIndex();
+      const student = getStudentConfig(index);
+      updateStudentConfig(index, { useNameAsTitle: e.target.checked });
+      
+      if (e.target.checked && student) {
+        updateOverviewTitle(student.name);
+      } else {
+        // Restore original title
+        const contentData = getContentData();
+        if (contentData && contentData.title) {
+          updateOverviewTitle(contentData.title);
+        }
+      }
+      
+      // Save HTML to server
+      saveIndexHTML().catch(err => console.error('[EditMode] Failed to save HTML:', err));
+      
+      console.log('[EditMode] Use name as title toggled:', e.target.checked);
+    });
+  }
+  
+  // Student Topic Count Save
+  const studentTopicCountInput = document.getElementById('student-topic-count-input');
+  const studentTopicCountSaveBtn = document.getElementById('student-topic-count-save-btn');
+  
+  if (studentTopicCountSaveBtn && studentTopicCountInput) {
+    studentTopicCountSaveBtn.addEventListener('click', async () => {
+      const newTopicCount = parseInt(studentTopicCountInput.value);
+      
+      if (newTopicCount < 3 || newTopicCount > 12) {
+        alert('Ungültige Anzahl. Bitte zwischen 3-12 wählen.');
+        return;
+      }
+      
+      const index = getCurrentStudentIndex();
+      updateStudentConfig(index, { topicCount: newTopicCount });
+      await reloadPresentationForStudent();
+      
+      console.log('[EditMode] Student topic count updated to:', newTopicCount);
+    });
+  }
+  
+  // Student Delete
+  const studentDeleteBtn = document.getElementById('student-delete-btn');
+  if (studentDeleteBtn) {
+    studentDeleteBtn.addEventListener('click', () => {
+      const index = getCurrentStudentIndex();
+      const student = getStudentConfig(index);
+      
+      if (!student) {
+        alert('Kein Schüler zum Löschen vorhanden.');
+        return;
+      }
+      
+      const confirmed = confirm(
+        `Schüler "${student.name}" wirklich löschen? Alle Edits gehen verloren.`
+      );
+      
+      if (!confirmed) return;
+      
+      deleteStudent(index);
+      updateStudentSelectDropdown();
+      updateStudentManagerDisplay();
+      updateStudentDropdown(getAllStudents());
+      
+      if (getLayerCount() === 0) {
+        setLayerMode(false);
+        document.getElementById('layer-mode-toggle').checked = false;
+        document.getElementById('layer-controls').style.display = 'none';
+        toggleStudentDropdownVisibility();
+      }
+      
+      console.log('[EditMode] Student deleted at index:', index);
+    });
+  }
+  
+  // Presentation Reload
+  const studentReloadBtn = document.getElementById('student-reload-btn');
+  if (studentReloadBtn) {
+    studentReloadBtn.addEventListener('click', async () => {
+      await reloadPresentationForStudent();
+    });
+  }
+  
+  // PDF Export
+  const pdfExportBtn = document.getElementById('pdf-export-btn');
+  if (pdfExportBtn) {
+    pdfExportBtn.addEventListener('click', () => {
+      showPDFExportGuide();
+    });
+  }
+}
+
+/**
+ * Aktualisiert Student-Select-Dropdown
+ */
+function updateStudentSelectDropdown() {
+  const studentSelectEdit = document.getElementById('student-select-edit');
+  const studentNameInput = document.getElementById('student-name-input');
+  const studentTopicCountInput = document.getElementById('student-topic-count-input');
+  
+  if (!studentSelectEdit) {
+    console.warn('[EditMode] Student select dropdown not found!');
+    return;
+  }
+  
+  const students = getAllStudents();
+  const currentIndex = getCurrentStudentIndex();
+  
+  // Leere Dropdown
+  studentSelectEdit.innerHTML = '';
+  
+  // Füge Optionen hinzu
+  students.forEach((student, index) => {
+    const option = document.createElement('option');
+    option.value = index;
+    option.textContent = student.name;
+    studentSelectEdit.appendChild(option);
+  });
+  
+  // Setze aktuellen Index
+  studentSelectEdit.value = currentIndex >= students.length ? 0 : currentIndex;
+  
+  // Aktualisiere Eingabefelder
+  updateStudentManagerDisplay();
+}
+
+/**
+ * Aktualisiert Student-Manager-Anzeige mit aktuellen Daten
+ */
+function updateStudentManagerDisplay() {
+  const student = getCurrentStudent();
+  const studentNameInput = document.getElementById('student-name-input');
+  const studentTopicCountInput = document.getElementById('student-topic-count-input');
+  const useTitleCheckbox = document.getElementById('use-student-name-as-title');
+  
+  if (student) {
+    if (studentNameInput) studentNameInput.value = student.name;
+    if (studentTopicCountInput) studentTopicCountInput.value = student.topicCount;
+    if (useTitleCheckbox) useTitleCheckbox.checked = student.useNameAsTitle || false;
+  }
+  
+  // Aktualisiere Drag-Drop-Liste, falls Layer-Modus aktiv (asynchron)
+  if (isLayerModeEnabled() && getLayerCount() > 0) {
+    import('./student-drag-drop.js').then(({ renderStudentList }) => {
+      renderStudentList();
+    }).catch(error => {
+      console.warn('[EditMode] Error rendering student list:', error);
+    });
+  }
+}
+
+/**
+ * Aktualisiert den Titel der Übersichtsfolie
+ * @param {string} title - Neuer Titel
+ */
+function updateOverviewTitle(title) {
+  const overviewTitle = document.querySelector('.overview-title');
+  if (overviewTitle) {
+    // Behalte den Untertitel, falls vorhanden
+    const lines = overviewTitle.innerHTML.split('<br>');
+    lines[0] = title;
+    overviewTitle.innerHTML = lines.join('<br>');
+    console.log('[EditMode] Overview title updated to:', title);
+  }
 }
 
 /**
