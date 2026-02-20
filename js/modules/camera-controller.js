@@ -7,7 +7,7 @@
  */
 
 import { clamp } from './utils/math.js';
-import { ANIMATION_DURATIONS, LAYOUT_CONSTANTS } from './config/constants.js';
+import { ANIMATIONS, LAYOUT } from '../config/index.js';
 
 class CameraController {
     constructor() {
@@ -17,9 +17,9 @@ class CameraController {
         this.focusedTileElement = null;
         
         // Animation Timing
-        this.zoomInDuration = ANIMATION_DURATIONS.zoomIn;
-        this.zoomOutDuration = ANIMATION_DURATIONS.zoomOut;
-        this.focusScaleBias = LAYOUT_CONSTANTS.focusScaleBias;
+        this.zoomInDuration = ANIMATIONS.zoomIn;
+        this.zoomOutDuration = ANIMATIONS.zoomOut;
+        this.focusScaleBias = LAYOUT.focusScaleBias;
         
         // Animation State
         this.animationInProgress = false;
@@ -196,7 +196,7 @@ class CameraController {
             viewportHeight / (targetHeight * focusScaleBias)
         );
 
-        const scale = clamp(desiredScale, LAYOUT_CONSTANTS.minZoom, LAYOUT_CONSTANTS.maxZoom);
+        const scale = clamp(desiredScale, LAYOUT.minZoom, LAYOUT.maxZoom);
         const viewportCenterX = viewportWidth / 2;
         const viewportCenterY = viewportHeight / 2;
 

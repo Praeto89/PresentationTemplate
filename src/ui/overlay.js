@@ -24,10 +24,12 @@ function getOrCreateOverlay() {
       </div>
       <div class="overlay-tabs">
         <button class="tab-button" data-tab="slide-edit" aria-selected="true">Slides bearbeiten</button>
+        <button class="tab-button" data-tab="students" aria-selected="false">Schüler</button>
         <button class="tab-button" data-tab="menu-admin" aria-selected="false">Menu verwalten</button>
       </div>
       <div class="overlay-tab-content">
         <div class="tab-pane" id="slide-edit-content" data-tab="slide-edit"></div>
+        <div class="tab-pane" id="students-content" data-tab="students" style="display: none;"></div>
         <div class="tab-pane" id="menu-admin-content" data-tab="menu-admin" style="display: none;"></div>
       </div>
     </div>
@@ -43,9 +45,11 @@ function getOrCreateOverlay() {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
   
-  // Close on backdrop click
+  // Close on backdrop click (nur wenn direkt auf overlay geklickt)
   overlayElement.addEventListener('click', (e) => {
-    if (e.target === overlayElement) {
+    // Nur schließen wenn der Click direkt auf das Overlay war, nicht auf Kind-Elemente
+    if (e.target === overlayElement && e.currentTarget === overlayElement) {
+      e.stopPropagation();
       hideOverlay();
     }
   });

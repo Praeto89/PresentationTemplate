@@ -5,6 +5,8 @@
  * ════════════════════════════════════════════════════════════════════════════
  */
 
+import { getCurrentStudent } from './student-manager.js';
+
 /**
  * Generiert alle Overview-Kreise basierend auf Topics aus content.json
  * @param {number} circleCount - Anzahl Kreise (3-12)
@@ -91,20 +93,30 @@ export function generateTopicSlide(topicNumber, topicTitle, topicId, detailSlide
 
 /**
  * Generiert alle Topic-Slides basierend auf Anzahl
- * @param {number} topicCount - Anzahl Topics/Kreise (3-12)
+ * Nutzt Student-Config aus Layer-Modus, wenn verfügbar
+ * @param {number} topicCount - Anzahl Topics/Kreise (3-12), wird überschrieben wenn Student-Config existiert
  * @returns {string} HTML für alle Topic-Slides
  */
 export function generateAllTopicSlides(topicCount) {
+  // Prüfe ob Student-Config existiert
+  const student = getCurrentStudent();
+  if (student) {
+    topicCount = student.topicCount;
+  }
+  
   console.log('[SlideGenerator] Generating', topicCount, 'topic slides');
   
   let allSlidesHTML = '';
-  const detailSlidesPerTopic = 3; // Standard: 3 Detail-Slides pro Topic
+  
+  // Nutze Student-Config oder Standard
+  const detailSlidesPerTopic = student ? student.detailSlidesPerTopic : 3;
   
   for (let i = 1; i <= topicCount; i++) {
     const topicTitle = `Thema ${i}`;
     const topicId = `topic-${i}`;
     allSlidesHTML += generateTopicSlide(i, topicTitle, topicId, detailSlidesPerTopic);
   }
+  
   
   return allSlidesHTML;
 }
@@ -125,16 +137,24 @@ export function generateClosingSlide() {
 
 /**
  * Generiert komplettes Reveal.js Slide-HTML
- * @param {number} circleCount - Anzahl Kreise/Topics (3-12)
+ * Nutzt Student-Config aus Layer-Modus, wenn verfügbar
+ * @param {number} circleCount - Anzahl Kreise/Topics (3-12), wird ignoriert wenn Student-Config existiert
  * @param {string} title - Präsentationstitel
  * @param {string} subtitle - Untertitel
  * @param {string} author - Autor
  * @returns {string} Komplettes HTML für alle Slides
  */
 export function generateCompleteSlidesHTML(circleCount, title, subtitle, author) {
+  // Prüfe ob Student-Config existiert
+  const student = getCurrentStudent();
+  if (student) {
+    circleCount = student.topicCount;
+    console.log('[SlideGenerator] Using student config:', student.name, 'with', circleCount, 'circles');
+  }
+  
   console.log('[SlideGenerator] Generating complete HTML for', circleCount, 'circles');
   
-  if (circleCount < 3 || circleCount > 12) {
+  if (circleCount < 3 || circleCount > 25) {
     console.error('[SlideGenerator] Invalid circle count:', circleCount);
     return '';
   }

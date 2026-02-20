@@ -5,8 +5,12 @@
 
 import { initEditor } from './editor.js';
 import { initEditMode } from '../js/modules/edit-mode.js';
+import { initStudentManager } from '../js/modules/student-manager.js';
 
 async function init() {
+  // Initialize Student Manager (loads saved students from localStorage)
+  initStudentManager();
+  
   // If in edit mode, remove hash and disable hash tracking
   const urlParams = new URLSearchParams(window.location.search);
   const isEditMode = urlParams.get('mode') === 'edit';
