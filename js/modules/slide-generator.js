@@ -6,6 +6,7 @@
  */
 
 import { getCurrentStudent } from './student-manager.js';
+import { getContentData } from './storage.js';
 
 /**
  * Generiert alle Overview-Kreise basierend auf Topics aus content.json
@@ -15,6 +16,9 @@ import { getCurrentStudent } from './student-manager.js';
 export function generateOverviewCircles(circleCount) {
   console.log('[SlideGenerator] Generating', circleCount, 'overview circles');
   
+  const contentData = getContentData();
+  const topics = contentData?.topics || [];
+  
   let circlesHTML = '';
   const outerRadius = 430;
   const step = 360 / circleCount;
@@ -23,12 +27,14 @@ export function generateOverviewCircles(circleCount) {
   for (let i = 0; i < circleCount; i++) {
     const angle = i * step + offset;
     const themeNumber = i + 1;
+    // Use title from content.json if available, otherwise fallback
+    const topicTitle = topics[i]?.title || `Thema ${themeNumber}`;
     
     circlesHTML += `
     <!-- Kreis ${themeNumber} -->
     <div class="circle-item" data-slide="${themeNumber}" style="--angle: ${angle}deg; --radius: ${outerRadius}px">
       <div class="circle-number">${themeNumber}</div>
-      <div class="circle-text">Thema ${themeNumber}</div>
+      <div class="circle-text">${topicTitle}</div>
     </div>
     `;
   }
@@ -52,14 +58,14 @@ export function generateTopicSlide(topicNumber, topicTitle, topicId, detailSlide
   <section class="stack" data-topic-id="${topicId}">
     <!-- Group Intro Slide (v=0) - MUSS erste Slide sein! -->
     <section class="group-intro">
-      <p class="group-subtitle">Thema ${topicNumber} Überblick</p>
+      <p class="group-subtitle">${topicTitle} Überblick</p>
       <div class="nav-boxes">
 `;
   
   // Generiere Nav-Boxes für dieses Topic
   for (let i = 1; i < detailSlidesCount + 1; i++) {
     slideHTML += `
-        <button class="nav-box" data-targetH="${topicNumber}" data-targetV="${i}" style="--box-index: ${i - 1}">
+        <button class="nav-box" data-target-h="${topicNumber}" data-target-v="${i}" style="--box-index: ${i - 1}">
           <span class="box-title">Detail ${i}</span>
         </button>
 `;
@@ -76,10 +82,10 @@ export function generateTopicSlide(topicNumber, topicTitle, topicId, detailSlide
     slideHTML += `
     <!-- Detail Slide ${i} -->
     <section class="detail-slide" data-parent-topic="${topicId}">
-      <h5>Thema ${topicNumber} - Detail ${i}</h5>
+      <h5>${topicTitle} - Detail ${i}</h5>
       <p>Platzhalter für Inhalte</p>
       <p>Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema ${topicNumber}</button>
+      <button class="return-to-main">← Zurück zu ${topicTitle}</button>
     </section>
 `;
   }
@@ -111,8 +117,11 @@ export function generateAllTopicSlides(topicCount) {
   // Nutze Student-Config oder Standard
   const detailSlidesPerTopic = student ? student.detailSlidesPerTopic : 3;
   
+  const contentData = getContentData();
+  const topics = contentData?.topics || [];
+  
   for (let i = 1; i <= topicCount; i++) {
-    const topicTitle = `Thema ${i}`;
+    const topicTitle = topics[i - 1]?.title || `Thema ${i}`;
     const topicId = `topic-${i}`;
     allSlidesHTML += generateTopicSlide(i, topicTitle, topicId, detailSlidesPerTopic);
   }
@@ -160,7 +169,6 @@ export function generateCompleteSlidesHTML(circleCount, title, subtitle, author)
   }
   
   let html = `
-    <div class="slides">
       <!-- Slide 0 | Übersicht -->
       <section id="overview" class="overview-slide">
         <div class="spiral-container">
@@ -178,7 +186,6 @@ export function generateCompleteSlidesHTML(circleCount, title, subtitle, author)
 
       <!-- Closing Slide -->
       ${generateClosingSlide()}
-    </div>
   `;
   
   return html;

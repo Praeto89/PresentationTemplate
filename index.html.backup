@@ -1,197 +1,58 @@
 <!DOCTYPE html>
-<html lang="de" class="reveal-full-page" style="background-image: url(&quot;assets/background/background.png&quot;); background-size: cover; background-repeat: no-repeat; background-position: center center;"><head>
+<html lang="de" class="reveal-full-page" style="background-image: url('assets/background/background.png'); background-size: cover; background-repeat: no-repeat; background-position: center center;"><head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Präsentation Template</title>
-    
-    <!-- Reveal.js Core CSS -->
+
     <link rel="stylesheet" href="dist/reset.css">
     <link rel="stylesheet" href="dist/reveal.css">
     <link rel="stylesheet" href="dist/theme/white.css">
-    
-    <!-- Presentation CSS -->
     <link rel="stylesheet" href="css/presentation.css">
-    
-    <!-- Editor CSS -->
     <link rel="stylesheet" href="css/editor.css">
-    
-    <!-- Subtopic Detail Panel CSS -->
+
     <style>
-        .subtopic-detail-panel {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            animation: fadeIn 0.2s ease-in-out;
-        }
-        
-        .subtopic-detail-panel.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .subtopic-detail-container {
-            background-color: white;
-            border-radius: 8px;
-            max-width: 700px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            animation: slideUp 0.3s ease-out;
-        }
-        
-        .subtopic-detail-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 30px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
-        .subtopic-detail-title {
-            margin: 0;
-            font-size: 28px;
-            color: #333;
-            font-weight: 600;
-        }
-        
-        .subtopic-detail-close {
-            background: none;
-            border: none;
-            font-size: 32px;
-            color: #999;
-            cursor: pointer;
-            padding: 0;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background-color 0.2s, color 0.2s;
-        }
-        
-        .subtopic-detail-close:hover {
-            background-color: #f0f0f0;
-            color: #333;
-        }
-        
-        .subtopic-detail-content {
-            padding: 30px;
-            font-size: 16px;
-            line-height: 1.6;
-            color: #555;
-        }
-        
-        .subtopic-detail-content p {
-            margin: 0 0 16px 0;
-        }
-        
-        .subtopic-detail-content p:last-child {
-            margin-bottom: 0;
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        .subtopic-detail-panel { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; animation: fadeIn 0.2s ease-in-out; }
+        .subtopic-detail-panel.active { display: flex; align-items: center; justify-content: center; }
+        .subtopic-detail-container { background-color: white; border-radius: 8px; max-width: 700px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); animation: slideUp 0.3s ease-out; }
+        .subtopic-detail-header { display: flex; justify-content: space-between; align-items: center; padding: 30px; border-bottom: 2px solid #f0f0f0; }
+        .subtopic-detail-title { margin: 0; font-size: 28px; color: #333; font-weight: 600; }
+        .subtopic-detail-close { background: none; border: none; font-size: 32px; color: #999; cursor: pointer; padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background-color 0.2s, color 0.2s; }
+        .subtopic-detail-close:hover { background-color: #f0f0f0; color: #333; }
+        .subtopic-detail-content { padding: 30px; font-size: 16px; line-height: 1.6; color: #555; }
+        .subtopic-detail-content p { margin: 0 0 16px 0; }
+        .subtopic-detail-content p:last-child { margin-bottom: 0; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="reveal-viewport" style="--slide-width: 1920px; --slide-height: 1080px; --slide-scale: 0.7013333333333334; --viewport-width: 1581px; --viewport-height: 789px; background-image: url(&quot;assets/background/background.png&quot;); background-size: cover; background-position: center center; background-repeat: no-repeat; background-color: rgb(247, 246, 242)">
-    <!-- Subtopic Detail Panel -->
+<body class="reveal-viewport edit-mode" style="background-image: url(&quot;assets/background/background.png&quot;); background-size: cover; background-position: center center; background-repeat: no-repeat; background-color: rgb(247, 246, 242); --slide-width: 1920px; --slide-height: 1080px; --slide-scale: 0.588; --viewport-width: 1176px; --viewport-height: 789px">
     <div class="subtopic-detail-panel" role="dialog" aria-label="Subtopic Detail" aria-hidden="true"></div>
-    
-    <div class="reveal center focused has-vertical-slides has-horizontal-slides ready has-bg-image bg-image-active zoom" role="application" data-transition-speed="default" data-background-transition="fade">
-        <div class="slides">
-    <div class="slides">
+    <div class="reveal center focused has-vertical-slides has-horizontal-slides ready has-bg-image bg-image-active zoom" role="application" data-transition-speed="default" data-background-transition="fade" style="--bg-image: url(assets/background/background.png);"><div class="slides" style="width: 1920px; height: 1080px; inset: 50% auto auto 50%; transform: translate(-50%, -50%) scale(0.588);">
       <!-- Slide 0 | Übersicht -->
-      <section id="overview" class="overview-slide present">
+      <section id="overview" class="overview-slide">
         <div class="spiral-container">
-          <!-- Student Layer Selector (nur wenn Layer-Modus aktiv) -->
-          <div id="student-selector-wrapper" class="student-selector-wrapper" style="display: block; position: absolute; top: -50px; left: -100px; z-index: 100">
-            <label for="student-selector" style="margin-right: 10px; font-size: 14px; font-weight: bold">Schüler:</label>
-            <select id="student-selector" style="padding: 5px 10px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc"><option value="0">Schüler 1</option><option value="1">Schüler 2</option><option value="2">Schüler 3</option><option value="3">Schüler 4</option><option value="4">Schüler 5</option><option value="5">Schüler 6</option><option value="6">Schüler 7</option><option value="7">Schüler 8</option></select>
-          </div>
-          
-          <div class="overview-title" style="transition: outline 0.2s">Neue Präsentation<br>Untertitel Platzhalter</div>
-          <div class="overview-subtitle" style="transition: outline 0.2s">Autor – TT.MM.JJJJ<br>Betreuung: Betreuende Person</div>
-          <div class="overview-subtitle" style="transition: outline 0.2s">Institution / Organisation</div>
+          <div class="overview-title">Masterarbeit Titel<br>Untertitel Platzhalter</div>
+          <div class="overview-subtitle">Ihr Name – TT.MM.JJJJ<br>Betreuung: Betreuende Person</div>
+          <div class="overview-subtitle">Institution / Organisation</div>
 
           <!-- Overview Kreise -->
           
     <!-- Kreis 1 -->
     <div class="circle-item" data-slide="1" style="--angle: -90deg; --radius: 430px">
       <div class="circle-number">1</div>
-      <div class="circle-text">Thema 1</div>
+      <div class="circle-text">Beweggründe</div>
     </div>
     
     <!-- Kreis 2 -->
-    <div class="circle-item" data-slide="2" style="--angle: -50deg; --radius: 430px">
+    <div class="circle-item" data-slide="2" style="--angle: 30deg; --radius: 430px">
       <div class="circle-number">2</div>
-      <div class="circle-text">Thema 2</div>
+      <div class="circle-text">Thesen</div>
     </div>
     
     <!-- Kreis 3 -->
-    <div class="circle-item" data-slide="3" style="--angle: -10deg; --radius: 430px">
+    <div class="circle-item" data-slide="3" style="--angle: 150deg; --radius: 430px">
       <div class="circle-number">3</div>
-      <div class="circle-text">Thema 3</div>
-    </div>
-    
-    <!-- Kreis 4 -->
-    <div class="circle-item" data-slide="4" style="--angle: 30deg; --radius: 430px">
-      <div class="circle-number">4</div>
-      <div class="circle-text">Thema 4</div>
-    </div>
-    
-    <!-- Kreis 5 -->
-    <div class="circle-item" data-slide="5" style="--angle: 70deg; --radius: 430px">
-      <div class="circle-number">5</div>
-      <div class="circle-text">Thema 5</div>
-    </div>
-    
-    <!-- Kreis 6 -->
-    <div class="circle-item" data-slide="6" style="--angle: 110deg; --radius: 430px">
-      <div class="circle-number">6</div>
-      <div class="circle-text">Thema 6</div>
-    </div>
-    
-    <!-- Kreis 7 -->
-    <div class="circle-item" data-slide="7" style="--angle: 150deg; --radius: 430px">
-      <div class="circle-number">7</div>
-      <div class="circle-text">Thema 7</div>
-    </div>
-    
-    <!-- Kreis 8 -->
-    <div class="circle-item" data-slide="8" style="--angle: 190deg; --radius: 430px">
-      <div class="circle-number">8</div>
-      <div class="circle-text">Thema 8</div>
-    </div>
-    
-    <!-- Kreis 9 -->
-    <div class="circle-item" data-slide="9" style="--angle: 230deg; --radius: 430px">
-      <div class="circle-number">9</div>
-      <div class="circle-text">Thema 9</div>
+      <div class="circle-text">Hermeneutischer Zugang</div>
     </div>
     
         </div>
@@ -199,11 +60,11 @@
 
       <!-- Topic Slides -->
       
-  <!-- Folie 1 | h=1 | Thema 1 -->
-  <section class="stack future" data-topic-id="topic-1" hidden="" aria-hidden="true">
-    <!-- Group Intro Slide -->
+  <!-- Folie 1 | h=1 | Beweggründe -->
+  <section class="stack" data-topic-id="topic-1">
+    <!-- Group Intro Slide (v=0) - MUSS erste Slide sein! -->
     <section class="group-intro">
-      <p class="group-subtitle" style="transition: outline 0.2s">Thema 1 Überblick</p>
+      <p class="group-subtitle">Beweggründe Überblick</p>
       <div class="nav-boxes">
 
         <button class="nav-box" data-target-h="1" data-target-v="1" style="--box-index: 0">
@@ -223,36 +84,36 @@
     </section>
 
     <!-- Detail Slide 1 -->
-    <section class="detail-slide future" data-parent-topic="topic-1" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 1 - Detail 1</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 1</button>
+    <section class="detail-slide" data-parent-topic="topic-1">
+      <h5>Beweggründe - Detail 1</h5>
+      <p>Platzhalter für Inhalte</p>
+      <p>Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
+      <button class="return-to-main">← Zurück zu Beweggründe</button>
     </section>
 
     <!-- Detail Slide 2 -->
-    <section class="detail-slide future" data-parent-topic="topic-1" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 1 - Detail 2</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 1</button>
+    <section class="detail-slide" data-parent-topic="topic-1">
+      <h5>Beweggründe - Detail 2</h5>
+      <p>Platzhalter für Inhalte</p>
+      <p>Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
+      <button class="return-to-main">← Zurück zu Beweggründe</button>
     </section>
 
     <!-- Detail Slide 3 -->
-    <section class="detail-slide future" data-parent-topic="topic-1" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 1 - Detail 3</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 1</button>
+    <section class="detail-slide" data-parent-topic="topic-1">
+      <h5>Beweggründe - Detail 3</h5>
+      <p>Platzhalter für Inhalte</p>
+      <p>Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
+      <button class="return-to-main">← Zurück zu Beweggründe</button>
     </section>
 
   </section>
 
-  <!-- Folie 2 | h=2 | Thema 2 -->
-  <section class="stack future" data-topic-id="topic-2" hidden="" aria-hidden="true">
-    <!-- Group Intro Slide -->
-    <section class="group-intro" aria-hidden="true">
-      <p class="group-subtitle" style="transition: outline 0.2s">Thema 2 Überblick</p>
+  <!-- Folie 2 | h=2 | Thesen -->
+  <section class="stack" data-topic-id="topic-2">
+    <!-- Group Intro Slide (v=0) - MUSS erste Slide sein! -->
+    <section class="group-intro">
+      <p class="group-subtitle">Thesen Überblick</p>
       <div class="nav-boxes">
 
         <button class="nav-box" data-target-h="2" data-target-v="1" style="--box-index: 0">
@@ -272,36 +133,36 @@
     </section>
 
     <!-- Detail Slide 1 -->
-    <section class="detail-slide future" data-parent-topic="topic-2" aria-hidden="true" hidden="">
-      <h5 class="" style="transition: outline 0.2s">Thema 2 - Detail 1</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 2</button>
+    <section class="detail-slide" data-parent-topic="topic-2">
+      <h5>Thesen - Detail 1</h5>
+      <p>Platzhalter für Inhalte</p>
+      <p>Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
+      <button class="return-to-main">← Zurück zu Thesen</button>
     </section>
 
     <!-- Detail Slide 2 -->
-    <section class="detail-slide future" data-parent-topic="topic-2" aria-hidden="true" hidden="">
-      <h5 class="" style="transition: outline 0.2s">Thema 2 - Detail 2</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 2</button>
+    <section class="detail-slide" data-parent-topic="topic-2">
+      <h5>Thesen - Detail 2</h5>
+      <p>Platzhalter für Inhalte</p>
+      <p>Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
+      <button class="return-to-main">← Zurück zu Thesen</button>
     </section>
 
     <!-- Detail Slide 3 -->
-    <section class="detail-slide future" data-parent-topic="topic-2" aria-hidden="true" hidden="">
-      <h5 class="" style="transition: outline 0.2s">Thema 2 - Detail 3</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 2</button>
+    <section class="detail-slide" data-parent-topic="topic-2">
+      <h5>Thesen - Detail 3</h5>
+      <p>Platzhalter für Inhalte</p>
+      <p>Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
+      <button class="return-to-main">← Zurück zu Thesen</button>
     </section>
 
   </section>
 
-  <!-- Folie 3 | h=3 | Thema 3 -->
-  <section class="stack future" data-topic-id="topic-3" hidden="" aria-hidden="true">
-    <!-- Group Intro Slide -->
+  <!-- Folie 3 | h=3 | Hermeneutischer Zugang -->
+  <section class="stack" data-topic-id="topic-3">
+    <!-- Group Intro Slide (v=0) - MUSS erste Slide sein! -->
     <section class="group-intro">
-      <p class="group-subtitle" style="transition: outline 0.2s">Thema 3 Überblick</p>
+      <p class="group-subtitle">Hermeneutischer Zugang Überblick</p>
       <div class="nav-boxes">
 
         <button class="nav-box" data-target-h="3" data-target-v="1" style="--box-index: 0">
@@ -321,321 +182,27 @@
     </section>
 
     <!-- Detail Slide 1 -->
-    <section class="detail-slide future" data-parent-topic="topic-3" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 3 - Detail 1</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 3</button>
+    <section class="detail-slide" data-parent-topic="topic-3">
+      <h5>Hermeneutischer Zugang - Detail 1</h5>
+      <p>Platzhalter für Inhalte</p>
+      <p>Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
+      <button class="return-to-main">← Zurück zu Hermeneutischer Zugang</button>
     </section>
 
     <!-- Detail Slide 2 -->
-    <section class="detail-slide future" data-parent-topic="topic-3" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 3 - Detail 2</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 3</button>
+    <section class="detail-slide" data-parent-topic="topic-3">
+      <h5>Hermeneutischer Zugang - Detail 2</h5>
+      <p>Platzhalter für Inhalte</p>
+      <p>Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
+      <button class="return-to-main">← Zurück zu Hermeneutischer Zugang</button>
     </section>
 
     <!-- Detail Slide 3 -->
-    <section class="detail-slide future" data-parent-topic="topic-3" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 3 - Detail 3</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 3</button>
-    </section>
-
-  </section>
-
-  <!-- Folie 4 | h=4 | Thema 4 -->
-  <section class="stack future" data-topic-id="topic-4" hidden="" aria-hidden="true">
-    <!-- Group Intro Slide -->
-    <section class="group-intro">
-      <p class="group-subtitle" style="transition: outline 0.2s">Thema 4 Überblick</p>
-      <div class="nav-boxes">
-
-        <button class="nav-box" data-target-h="4" data-target-v="1" style="--box-index: 0">
-          <span class="box-title">Detail 1</span>
-        </button>
-
-        <button class="nav-box" data-target-h="4" data-target-v="2" style="--box-index: 1">
-          <span class="box-title">Detail 2</span>
-        </button>
-
-        <button class="nav-box" data-target-h="4" data-target-v="3" style="--box-index: 2">
-          <span class="box-title">Detail 3</span>
-        </button>
-
-      </div>
-      <button class="return-btn" onclick="Reveal.slide(0)">← Zur Übersicht</button>
-    </section>
-
-    <!-- Detail Slide 1 -->
-    <section class="detail-slide future" data-parent-topic="topic-4" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 4 - Detail 1</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 4</button>
-    </section>
-
-    <!-- Detail Slide 2 -->
-    <section class="detail-slide future" data-parent-topic="topic-4" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 4 - Detail 2</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 4</button>
-    </section>
-
-    <!-- Detail Slide 3 -->
-    <section class="detail-slide future" data-parent-topic="topic-4" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 4 - Detail 3</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 4</button>
-    </section>
-
-  </section>
-
-  <!-- Folie 5 | h=5 | Thema 5 -->
-  <section class="stack future" data-topic-id="topic-5" hidden="" aria-hidden="true">
-    <!-- Group Intro Slide -->
-    <section class="group-intro">
-      <p class="group-subtitle" style="transition: outline 0.2s">Thema 5 Überblick</p>
-      <div class="nav-boxes">
-
-        <button class="nav-box" data-target-h="5" data-target-v="1" style="--box-index: 0">
-          <span class="box-title">Detail 1</span>
-        </button>
-
-        <button class="nav-box" data-target-h="5" data-target-v="2" style="--box-index: 1">
-          <span class="box-title">Detail 2</span>
-        </button>
-
-        <button class="nav-box" data-target-h="5" data-target-v="3" style="--box-index: 2">
-          <span class="box-title">Detail 3</span>
-        </button>
-
-      </div>
-      <button class="return-btn" onclick="Reveal.slide(0)">← Zur Übersicht</button>
-    </section>
-
-    <!-- Detail Slide 1 -->
-    <section class="detail-slide future" data-parent-topic="topic-5" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 5 - Detail 1</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 5</button>
-    </section>
-
-    <!-- Detail Slide 2 -->
-    <section class="detail-slide future" data-parent-topic="topic-5" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 5 - Detail 2</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 5</button>
-    </section>
-
-    <!-- Detail Slide 3 -->
-    <section class="detail-slide future" data-parent-topic="topic-5" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 5 - Detail 3</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 5</button>
-    </section>
-
-  </section>
-
-  <!-- Folie 6 | h=6 | Thema 6 -->
-  <section class="stack future" data-topic-id="topic-6" hidden="" aria-hidden="true">
-    <!-- Group Intro Slide -->
-    <section class="group-intro">
-      <p class="group-subtitle" style="transition: outline 0.2s">Thema 6 Überblick</p>
-      <div class="nav-boxes">
-
-        <button class="nav-box" data-target-h="6" data-target-v="1" style="--box-index: 0">
-          <span class="box-title">Detail 1</span>
-        </button>
-
-        <button class="nav-box" data-target-h="6" data-target-v="2" style="--box-index: 1">
-          <span class="box-title">Detail 2</span>
-        </button>
-
-        <button class="nav-box" data-target-h="6" data-target-v="3" style="--box-index: 2">
-          <span class="box-title">Detail 3</span>
-        </button>
-
-      </div>
-      <button class="return-btn" onclick="Reveal.slide(0)">← Zur Übersicht</button>
-    </section>
-
-    <!-- Detail Slide 1 -->
-    <section class="detail-slide future" data-parent-topic="topic-6" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 6 - Detail 1</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 6</button>
-    </section>
-
-    <!-- Detail Slide 2 -->
-    <section class="detail-slide future" data-parent-topic="topic-6" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 6 - Detail 2</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 6</button>
-    </section>
-
-    <!-- Detail Slide 3 -->
-    <section class="detail-slide future" data-parent-topic="topic-6" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 6 - Detail 3</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 6</button>
-    </section>
-
-  </section>
-
-  <!-- Folie 7 | h=7 | Thema 7 -->
-  <section class="stack future" data-topic-id="topic-7" hidden="" aria-hidden="true">
-    <!-- Group Intro Slide -->
-    <section class="group-intro">
-      <p class="group-subtitle" style="transition: outline 0.2s">Thema 7 Überblick</p>
-      <div class="nav-boxes">
-
-        <button class="nav-box" data-target-h="7" data-target-v="1" style="--box-index: 0">
-          <span class="box-title">Detail 1</span>
-        </button>
-
-        <button class="nav-box" data-target-h="7" data-target-v="2" style="--box-index: 1">
-          <span class="box-title">Detail 2</span>
-        </button>
-
-        <button class="nav-box" data-target-h="7" data-target-v="3" style="--box-index: 2">
-          <span class="box-title">Detail 3</span>
-        </button>
-
-      </div>
-      <button class="return-btn" onclick="Reveal.slide(0)">← Zur Übersicht</button>
-    </section>
-
-    <!-- Detail Slide 1 -->
-    <section class="detail-slide future" data-parent-topic="topic-7" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 7 - Detail 1</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 7</button>
-    </section>
-
-    <!-- Detail Slide 2 -->
-    <section class="detail-slide future" data-parent-topic="topic-7" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 7 - Detail 2</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 7</button>
-    </section>
-
-    <!-- Detail Slide 3 -->
-    <section class="detail-slide future" data-parent-topic="topic-7" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 7 - Detail 3</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 7</button>
-    </section>
-
-  </section>
-
-  <!-- Folie 8 | h=8 | Thema 8 -->
-  <section class="stack future" data-topic-id="topic-8" hidden="" aria-hidden="true">
-    <!-- Group Intro Slide -->
-    <section class="group-intro">
-      <p class="group-subtitle" style="transition: outline 0.2s">Thema 8 Überblick</p>
-      <div class="nav-boxes">
-
-        <button class="nav-box" data-target-h="8" data-target-v="1" style="--box-index: 0">
-          <span class="box-title">Detail 1</span>
-        </button>
-
-        <button class="nav-box" data-target-h="8" data-target-v="2" style="--box-index: 1">
-          <span class="box-title">Detail 2</span>
-        </button>
-
-        <button class="nav-box" data-target-h="8" data-target-v="3" style="--box-index: 2">
-          <span class="box-title">Detail 3</span>
-        </button>
-
-      </div>
-      <button class="return-btn" onclick="Reveal.slide(0)">← Zur Übersicht</button>
-    </section>
-
-    <!-- Detail Slide 1 -->
-    <section class="detail-slide future" data-parent-topic="topic-8" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 8 - Detail 1</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 8</button>
-    </section>
-
-    <!-- Detail Slide 2 -->
-    <section class="detail-slide future" data-parent-topic="topic-8" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 8 - Detail 2</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 8</button>
-    </section>
-
-    <!-- Detail Slide 3 -->
-    <section class="detail-slide future" data-parent-topic="topic-8" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 8 - Detail 3</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 8</button>
-    </section>
-
-  </section>
-
-  <!-- Folie 9 | h=9 | Thema 9 -->
-  <section class="stack future" data-topic-id="topic-9" hidden="" aria-hidden="true">
-    <!-- Group Intro Slide -->
-    <section class="group-intro">
-      <p class="group-subtitle" style="transition: outline 0.2s">Thema 9 Überblick</p>
-      <div class="nav-boxes">
-
-        <button class="nav-box" data-target-h="9" data-target-v="1" style="--box-index: 0">
-          <span class="box-title">Detail 1</span>
-        </button>
-
-        <button class="nav-box" data-target-h="9" data-target-v="2" style="--box-index: 1">
-          <span class="box-title">Detail 2</span>
-        </button>
-
-        <button class="nav-box" data-target-h="9" data-target-v="3" style="--box-index: 2">
-          <span class="box-title">Detail 3</span>
-        </button>
-
-      </div>
-      <button class="return-btn" onclick="Reveal.slide(0)">← Zur Übersicht</button>
-    </section>
-
-    <!-- Detail Slide 1 -->
-    <section class="detail-slide future" data-parent-topic="topic-9" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 9 - Detail 1</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 9</button>
-    </section>
-
-    <!-- Detail Slide 2 -->
-    <section class="detail-slide future" data-parent-topic="topic-9" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 9 - Detail 2</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 9</button>
-    </section>
-
-    <!-- Detail Slide 3 -->
-    <section class="detail-slide future" data-parent-topic="topic-9" aria-hidden="true">
-      <h5 class="" style="transition: outline 0.2s">Thema 9 - Detail 3</h5>
-      <p class="" style="transition: outline 0.2s">Platzhalter für Inhalte</p>
-      <p class="" style="transition: outline 0.2s">Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
-      <button class="return-to-main">← Zurück zu Thema 9</button>
+    <section class="detail-slide" data-parent-topic="topic-3">
+      <h5>Hermeneutischer Zugang - Detail 3</h5>
+      <p>Platzhalter für Inhalte</p>
+      <p>Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
+      <button class="return-to-main">← Zurück zu Hermeneutischer Zugang</button>
     </section>
 
   </section>
@@ -644,229 +211,14 @@
       <!-- Closing Slide -->
       
   <!-- Closing Slide -->
-  <section class="closing-slide future" hidden="" aria-hidden="true">
+  <section class="closing-slide">
     <h2>Vielen Dank!</h2>
     <p>Fragen?</p>
   </section>
 
-    </div>
-  </div>
-    </div>
-
-    <!-- Reveal.js Core JS -->
+  </div></div>
     <script src="dist/reveal.js"></script>
-    
-    <!-- Presentation Init -->
     <script type="module" src="src/presentation.js?v=20260220" defer=""></script>
 
 
-
-
-
-
-
-<button class="admin-panel-toggle-btn" style="position: fixed; bottom: 70px; right: 20px; background: linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(102, 126, 234, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">⚙️ Admin Panel</button><button class="circle-settings-btn" style="position: fixed; bottom: 120px; right: 20px; background: linear-gradient(135deg, rgb(240, 147, 251) 0%, rgb(245, 87, 108) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(245, 87, 108, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">⚙️ Kreise einstellen</button><div class="edit-overlay is-hidden" style="z-index: 99999; position: fixed">
-    <div class="overlay-content">
-      <div class="overlay-header">
-        <h2 class="overlay-title">Bearbeitungsmodus</h2>
-        <button class="overlay-close-btn" aria-label="Overlay schließen">✕</button>
-      </div>
-      <div class="overlay-tabs">
-        <button class="tab-button" data-tab="slide-edit" aria-selected="false">Slides bearbeiten</button>
-        <button class="tab-button" data-tab="menu-admin" aria-selected="true">Menu verwalten</button>
-      </div>
-      <div class="overlay-tab-content">
-        <div class="tab-pane" id="slide-edit-content" data-tab="slide-edit" style="display: none"></div>
-        <div class="tab-pane" id="menu-admin-content" data-tab="menu-admin" style="display: block"></div>
-      </div>
-    </div>
-  </div><button class="admin-panel-toggle-btn" style="position: fixed; bottom: 70px; right: 20px; background: linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(102, 126, 234, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s">⚙️ Admin Panel</button><button class="circle-settings-btn" style="position: fixed; bottom: 120px; right: 20px; background: linear-gradient(135deg, rgb(240, 147, 251) 0%, rgb(245, 87, 108) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(245, 87, 108, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">⚙️ Kreise einstellen</button><button class="admin-panel-toggle-btn" style="position: fixed; bottom: 70px; right: 20px; background: linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(102, 126, 234, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">⚙️ Admin Panel</button><button class="circle-settings-btn" style="position: fixed; bottom: 120px; right: 20px; background: linear-gradient(135deg, rgb(240, 147, 251) 0%, rgb(245, 87, 108) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(245, 87, 108, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">⚙️ Kreise einstellen</button><div class="edit-overlay is-hidden" style="z-index: 99999; position: fixed">
-    <div class="overlay-content">
-      <div class="overlay-header">
-        <h2 class="overlay-title">Bearbeitungsmodus</h2>
-        <button class="overlay-close-btn" aria-label="Overlay schließen">✕</button>
-      </div>
-      <div class="overlay-tabs">
-        <button class="tab-button" data-tab="slide-edit" aria-selected="false">Slides bearbeiten</button>
-        <button class="tab-button" data-tab="menu-admin" aria-selected="true">Menu verwalten</button>
-      </div>
-      <div class="overlay-tab-content">
-        <div class="tab-pane" id="slide-edit-content" data-tab="slide-edit" style="display: none"></div>
-        <div class="tab-pane" id="menu-admin-content" data-tab="menu-admin" style="display: block"></div>
-      </div>
-    </div>
-  </div><button class="admin-panel-toggle-btn" style="position: fixed; bottom: 70px; right: 20px; background: linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(102, 126, 234, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">⚙️ Admin Panel</button><button class="circle-settings-btn" style="position: fixed; bottom: 120px; right: 20px; background: linear-gradient(135deg, rgb(240, 147, 251) 0%, rgb(245, 87, 108) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(245, 87, 108, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">⚙️ Kreise einstellen</button><button class="admin-panel-toggle-btn" style="position: fixed; bottom: 70px; right: 20px; background: linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(102, 126, 234, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">⚙️ Admin Panel</button><button class="circle-settings-btn" style="position: fixed; bottom: 120px; right: 20px; background: linear-gradient(135deg, rgb(240, 147, 251) 0%, rgb(245, 87, 108) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(245, 87, 108, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">⚙️ Kreise einstellen</button><button class="admin-panel-toggle-btn" style="position: fixed; bottom: 70px; right: 20px; background: linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(102, 126, 234, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s">⚙️ Admin Panel</button><button class="circle-settings-btn" style="position: fixed; bottom: 120px; right: 20px; background: linear-gradient(135deg, rgb(240, 147, 251) 0%, rgb(245, 87, 108) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(245, 87, 108, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s">⚙️ Kreise einstellen</button><button class="circle-settings-btn-edit-mode" style="position: fixed; bottom: 100px; right: 20px; background: linear-gradient(135deg, rgb(240, 147, 251) 0%, rgb(245, 87, 108) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(245, 87, 108, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">⚙️ Kreise einstellen</button><button class="schueler-manager-btn-edit-mode" style="position: fixed; bottom: 50px; right: 20px; background: linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(102, 126, 234, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">👥 Schüler verwalten</button><div class="edit-overlay is-hidden" style="z-index: 99999; position: fixed">
-    <div class="overlay-content">
-      <div class="overlay-header">
-        <h2 class="overlay-title">Bearbeitungsmodus</h2>
-        <button class="overlay-close-btn" aria-label="Overlay schließen">✕</button>
-      </div>
-      <div class="overlay-tabs">
-        <button class="tab-button" data-tab="slide-edit" aria-selected="false">Slides bearbeiten</button>
-        <button class="tab-button" data-tab="students" aria-selected="true">Schüler</button>
-        <button class="tab-button" data-tab="menu-admin" aria-selected="false">Menu verwalten</button>
-      </div>
-      <div class="overlay-tab-content">
-        <div class="tab-pane" id="slide-edit-content" data-tab="slide-edit" style="display: none"></div>
-        <div class="tab-pane" id="students-content" data-tab="students" style="display: block"></div>
-        <div class="tab-pane" id="menu-admin-content" data-tab="menu-admin" style="display: none"></div>
-      </div>
-    </div>
-  </div><div class="edit-overlay is-hidden" style="z-index: 99999; position: fixed">
-    <div class="overlay-content">
-      <div class="overlay-header">
-        <h2 class="overlay-title">Bearbeitungsmodus</h2>
-        <button class="overlay-close-btn" aria-label="Overlay schließen">✕</button>
-      </div>
-      <div class="overlay-tabs">
-        <button class="tab-button" data-tab="slide-edit" aria-selected="false">Slides bearbeiten</button>
-        <button class="tab-button" data-tab="students" aria-selected="true">Schüler</button>
-        <button class="tab-button" data-tab="menu-admin" aria-selected="false">Menu verwalten</button>
-      </div>
-      <div class="overlay-tab-content">
-        <div class="tab-pane" id="slide-edit-content" data-tab="slide-edit" style="display: none"></div>
-        <div class="tab-pane" id="students-content" data-tab="students" style="display: block"></div>
-        <div class="tab-pane" id="menu-admin-content" data-tab="menu-admin" style="display: none"></div>
-      </div>
-    </div>
-  </div><button class="circle-settings-btn-edit-mode" style="position: fixed; bottom: 100px; right: 20px; background: linear-gradient(135deg, rgb(240, 147, 251) 0%, rgb(245, 87, 108) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(245, 87, 108, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">⚙️ Kreise einstellen</button><button class="schueler-manager-btn-edit-mode" style="position: fixed; bottom: 50px; right: 20px; background: linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(102, 126, 234, 0.4) 0px 4px 12px; cursor: pointer; transition: 0.3s; transform: translateY(0px)">👥 Schüler verwalten</button><div class="edit-overlay is-hidden" style="z-index: 99999; position: fixed">
-    <div class="overlay-content">
-      <div class="overlay-header">
-        <h2 class="overlay-title">Bearbeitungsmodus</h2>
-        <button class="overlay-close-btn" aria-label="Overlay schließen">✕</button>
-      </div>
-      <div class="overlay-tabs">
-        <button class="tab-button" data-tab="slide-edit" aria-selected="false">Slides bearbeiten</button>
-        <button class="tab-button" data-tab="students" aria-selected="true">Schüler</button>
-        <button class="tab-button" data-tab="menu-admin" aria-selected="false">Menu verwalten</button>
-      </div>
-      <div class="overlay-tab-content">
-        <div class="tab-pane" id="slide-edit-content" data-tab="slide-edit" style="display: none"></div>
-        <div class="tab-pane" id="students-content" data-tab="students" style="display: block">
-    <div class="student-manager-section">
-      <h3>Layer-Modus Einstellungen</h3>
-      
-      <div class="setting-group">
-        <label>
-          <input type="checkbox" id="layer-mode-toggle" checked="">
-          <span>Layer-Modus aktivieren</span>
-        </label>
-      </div>
-      
-      <div id="layer-controls" style="display: block">
-        <h4>Schüler verwalten</h4>
-        
-        <div class="setting-group">
-          <button id="deactivate-layer-mode-btn" class="admin-btn-danger" style="margin-bottom: 15px">⚠️ Layer-Modus deaktivieren</button>
-          <p style="font-size: 0.9em; color: #666; margin-top: 5px">Alle Schülerdaten werden gelöscht!</p>
-        </div>
-        
-        <div class="setting-group">
-          <label for="layer-count-input">Anzahl Schüler (1-25):</label>
-          <input type="number" id="layer-count-input" min="1" max="25" value="8" style="width: 60px; padding: 5px">
-          <button id="layer-count-update-btn" class="admin-btn-primary" style="margin-left: 10px">Aktualisieren</button>
-        </div>
-        
-        <div class="setting-group">
-          <label for="student-select-edit">Schüler selektieren:</label>
-          <select id="student-select-edit" style="padding: 5px; min-width: 200px"><option value="0">Schüler 1</option><option value="1">Schüler 2</option><option value="2">Schüler 3</option><option value="3">Schüler 4</option><option value="4">Schüler 5</option><option value="5">Schüler 6</option><option value="6">Schüler 7</option><option value="7">Schüler 8</option></select>
-        </div>
-        
-        <div class="setting-group">
-          <label for="student-name-input">Name des aktuellen Schülers:</label>
-          <input type="text" id="student-name-input" placeholder="z.B. Schüler 1" style="padding: 5px; width: 200px">
-          <button id="student-name-save-btn" class="admin-btn-primary" style="margin-left: 10px">Speichern</button>
-        </div>
-        
-        <div class="setting-group">
-          <label>
-            <input type="checkbox" id="use-student-name-as-title">
-            <span>Schülername als Titel in Übersichtsfolie anzeigen</span>
-          </label>
-        </div>
-        
-        <div class="setting-group">
-          <label for="student-topic-count-input">Anzahl Kreise für aktuellen Schüler (3-12):</label>
-          <input type="number" id="student-topic-count-input" min="3" max="12" value="8" style="width: 60px; padding: 5px">
-          <button id="student-topic-count-save-btn" class="admin-btn-primary" style="margin-left: 10px">Speichern &amp; Neu laden</button>
-        </div>
-        
-        <div class="setting-group">
-          <button id="student-delete-btn" class="admin-btn-danger" style="margin-top: 10px">Aktuellen Schüler löschen</button>
-          <button id="student-reload-btn" class="admin-btn-primary" style="margin-left: 10px">Präsentation neu laden</button>
-          <button id="pdf-export-btn" class="admin-btn-primary" style="margin-left: 10px">📄 PDF-Export</button>
-        </div>
-        
-        <!-- Student List mit Drag-Drop -->
-        <div id="student-list-container"><div style="margin-top: 20px"><h4>Schüler (zum Umordnen ziehen):</h4><div style="border: 1px solid #ddd; border-radius: 4px; overflow: hidden">
-      <div draggable="true" data-student-index="0" style="padding: 10px 15px; border-bottom: 1px solid #eee; cursor: move; display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; transition: all 0.2s ease" class="student-list-item">
-        <span>
-          <strong>1.</strong> Schüler 1 
-          <span style="color: #999; font-size: 12px">(8 Kreise)</span>
-        </span>
-        <span style="color: #999; font-size: 12px">⋮ Ziehen zum Umordnen</span>
-      </div>
-    
-      <div draggable="true" data-student-index="1" style="padding: 10px 15px; border-bottom: 1px solid #eee; cursor: move; display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; transition: all 0.2s ease" class="student-list-item">
-        <span>
-          <strong>2.</strong> Schüler 2 
-          <span style="color: #999; font-size: 12px">(8 Kreise)</span>
-        </span>
-        <span style="color: #999; font-size: 12px">⋮ Ziehen zum Umordnen</span>
-      </div>
-    
-      <div draggable="true" data-student-index="2" style="padding: 10px 15px; border-bottom: 1px solid #eee; cursor: move; display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; transition: all 0.2s ease" class="student-list-item">
-        <span>
-          <strong>3.</strong> Schüler 3 
-          <span style="color: #999; font-size: 12px">(8 Kreise)</span>
-        </span>
-        <span style="color: #999; font-size: 12px">⋮ Ziehen zum Umordnen</span>
-      </div>
-    
-      <div draggable="true" data-student-index="3" style="padding: 10px 15px; border-bottom: 1px solid #eee; cursor: move; display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; transition: all 0.2s ease" class="student-list-item">
-        <span>
-          <strong>4.</strong> Schüler 4 
-          <span style="color: #999; font-size: 12px">(8 Kreise)</span>
-        </span>
-        <span style="color: #999; font-size: 12px">⋮ Ziehen zum Umordnen</span>
-      </div>
-    
-      <div draggable="true" data-student-index="4" style="padding: 10px 15px; border-bottom: 1px solid #eee; cursor: move; display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; transition: all 0.2s ease" class="student-list-item">
-        <span>
-          <strong>5.</strong> Schüler 5 
-          <span style="color: #999; font-size: 12px">(8 Kreise)</span>
-        </span>
-        <span style="color: #999; font-size: 12px">⋮ Ziehen zum Umordnen</span>
-      </div>
-    
-      <div draggable="true" data-student-index="5" style="padding: 10px 15px; border-bottom: 1px solid #eee; cursor: move; display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; transition: all 0.2s ease" class="student-list-item">
-        <span>
-          <strong>6.</strong> Schüler 6 
-          <span style="color: #999; font-size: 12px">(8 Kreise)</span>
-        </span>
-        <span style="color: #999; font-size: 12px">⋮ Ziehen zum Umordnen</span>
-      </div>
-    
-      <div draggable="true" data-student-index="6" style="padding: 10px 15px; border-bottom: 1px solid #eee; cursor: move; display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; transition: all 0.2s ease" class="student-list-item">
-        <span>
-          <strong>7.</strong> Schüler 7 
-          <span style="color: #999; font-size: 12px">(8 Kreise)</span>
-        </span>
-        <span style="color: #999; font-size: 12px">⋮ Ziehen zum Umordnen</span>
-      </div>
-    
-      <div draggable="true" data-student-index="7" style="padding: 10px 15px; border-bottom: 1px solid #eee; cursor: move; display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; transition: all 0.2s ease" class="student-list-item">
-        <span>
-          <strong>8.</strong> Schüler 8 
-          <span style="color: #999; font-size: 12px">(8 Kreise)</span>
-        </span>
-        <span style="color: #999; font-size: 12px">⋮ Ziehen zum Umordnen</span>
-      </div>
-    </div><p style="font-size: 12px; color: #999; margin-top: 10px">Hinweis: Ziehen Sie einen Schüler, um die Reihenfolge zu ändern.</p></div></div>
-      </div>
-    </div>
-  </div>
-        <div class="tab-pane" id="menu-admin-content" data-tab="menu-admin" style="display: none"></div>
-      </div>
-    </div>
-  </div></body></html>
+<div class="nav-box-overlay" style="display: none;"></div><div id="student-selector-wrapper" style="position: fixed; top: 15px; left: 15px; z-index: 9990; background: rgba(255, 255, 255, 0.95); padding: 8px 14px; border-radius: 10px; box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 12px; display: block; align-items: center; gap: 8px; font-family: system-ui, -apple-system, sans-serif;"><label for="student-selector" style="font-size: 13px; font-weight: 600; color: rgb(68, 68, 68); white-space: nowrap;">👤 Schüler:</label><select id="student-selector" style="padding: 5px 10px; border: 1px solid rgb(204, 204, 204); border-radius: 6px; font-size: 13px; background: white; cursor: pointer; min-width: 140px;"><option value="0">test</option><option value="1">Schüler 2</option><option value="2">Schüler 3</option><option value="3">Schüler 4</option><option value="4">Schüler 5</option><option value="5">Schüler 6</option></select></div><div class="editor-hint" style="position: fixed; bottom: 20px; right: 20px; background: rgba(52, 152, 219, 0.9); color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9999; box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 12px;">📝 Edit Mode | Ctrl+S to export</div><div class="editor-hint" style="position: fixed; bottom: 20px; right: 20px; background: rgba(52, 152, 219, 0.9); color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 12px;">📝 Edit Mode | Ctrl+S to export | Ctrl+E for admin</div><div class="nav-box-overlay" style="display: none;"></div><div class="editor-hint" style="position: fixed; bottom: 20px; right: 20px; background: rgba(52, 152, 219, 0.9); color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9999; box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 12px;">📝 Edit Mode | Ctrl+S to export</div><div class="editor-hint" style="position: fixed; bottom: 20px; right: 20px; background: rgba(52, 152, 219, 0.9); color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9998; box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 12px;">📝 Edit Mode | Ctrl+S to export | Ctrl+E for admin</div></body></html>

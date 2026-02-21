@@ -40,6 +40,9 @@ export function initStudentLayerController() {
     return;
   }
   
+  // Erstelle Student-Dropdown im DOM falls nicht vorhanden
+  createStudentDropdownElement();
+  
   // Setze Event-Listener für Dropdown
   setupStudentDropdownListener();
   
@@ -62,6 +65,56 @@ export function initStudentLayerController() {
   }
   
   console.log('[StudentLayerController] Initialized');
+}
+
+/**
+ * Erstellt das Student-Dropdown-Element dynamisch im DOM
+ */
+function createStudentDropdownElement() {
+  // Prüfe ob schon vorhanden
+  if (document.getElementById('student-selector-wrapper')) {
+    return;
+  }
+  
+  const wrapper = document.createElement('div');
+  wrapper.id = 'student-selector-wrapper';
+  wrapper.style.cssText = `
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 9990;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 8px 14px;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: system-ui, -apple-system, sans-serif;
+  `;
+  
+  const label = document.createElement('label');
+  label.htmlFor = 'student-selector';
+  label.textContent = '👤 Schüler:';
+  label.style.cssText = 'font-size: 13px; font-weight: 600; color: #444; white-space: nowrap;';
+  
+  const select = document.createElement('select');
+  select.id = 'student-selector';
+  select.style.cssText = `
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 13px;
+    background: white;
+    cursor: pointer;
+    min-width: 140px;
+  `;
+  
+  wrapper.appendChild(label);
+  wrapper.appendChild(select);
+  document.body.appendChild(wrapper);
+  
+  console.log('[StudentLayerController] Student dropdown created in DOM');
 }
 
 /**
@@ -160,12 +213,34 @@ function updateOverviewTitleForStudent(title) {
  * @param {Object} slideEdits - Slide-Edit-Daten
  */
 function updateSlideEditsFromState(slideEdits) {
-  // Iteriere über alle Slide-Edits und wende sie an
-  for (const [selector, html] of Object.entries(slideEdits)) {
-    const elements = document.querySelectorAll(selector);
-    elements.forEach((el) => {
-      el.innerHTML = html;
-    });
+  if (!slideEdits || typeof slideEdits !== 'object') return;
+  
+  // Slide edit keys use the identifier format: slide_{index}_{tag}_{class}_{elementIndex}
+  // We need to look up elements using this identifier pattern
+  for (const [identifier, html] of Object.entries(slideEdits)) {
+    try {
+      const parts = identifier.split('_');
+      if (parts[0] !== 'slide' || parts.length < 5) continue;
+      
+      const slideIndex = parseInt(parts[1]);
+      const tagName = parts[2];
+      const className = parts[3];
+      const elementIndex = parseInt(parts[4]);
+      
+      const slide = document.querySelectorAll('.reveal .slides section')[slideIndex];
+      if (!slide) continue;
+      
+      const firstClass = className.split('_')[0];
+      const elements = firstClass 
+        ? slide.querySelectorAll(`${tagName}.${firstClass}`)
+        : slide.querySelectorAll(tagName);
+      
+      if (elements[elementIndex]) {
+        elements[elementIndex].innerHTML = html;
+      }
+    } catch (err) {
+      console.warn('[StudentLayerController] Error applying slide edit:', identifier, err);
+    }
   }
   
   console.log('[StudentLayerController] Applied slide edits for current student');
@@ -223,7 +298,7 @@ export async function reloadPresentationForStudent() {
     );
     
     // Aktualisiere Slides-Container
-    const slidesContainer = document.querySelector('.slides');
+    const slidesContainer = document.querySelector('.reveal .slides');
     if (slidesContainer) {
       slidesContainer.innerHTML = html;
       
@@ -233,10 +308,20 @@ export async function reloadPresentationForStudent() {
         setTimeout(() => {
           Reveal.sync();
           Reveal.slide(0); // Zurück zur Übersicht
-        }, 50);
+          
+          // Re-initialize circle navigation and nav boxes
+          if (window.setupCircleNavigation) {
+            window.setupCircleNavigation();
+          }
+          if (window.setupNavigationBoxes) {
+            window.setupNavigationBoxes();
+          }
+          
+          console.log('[StudentLayerController] Navigation re-initialized');
+        }, 100);
       }
       
-      console.log('[StudentLayerController] Presentation reloaded');
+      console.log('[StudentLayerController] Presentation reloaded with', student.topicCount, 'circles');
     }
     
     // Speichere Metadaten

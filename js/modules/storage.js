@@ -31,6 +31,9 @@ export async function loadContent() {
         
         contentData = await response.json();
         
+        // Make available globally for modules that access window.contentData
+        window.contentData = contentData;
+        
         // Aktualisiere HTML mit geladenen Daten
         updateHTMLContent(contentData);
         
@@ -45,6 +48,7 @@ export async function loadContent() {
         
         // Fallback zu Standardwerten aus HTML
         contentData = extractContentFromHTML();
+        window.contentData = contentData;
         setContentData(contentData);
         return contentData;
     }
@@ -140,7 +144,31 @@ export async function saveContent() {
  */
 export async function saveIndexHTML() {
     try {
-        const htmlContent = document.documentElement.outerHTML;
+        const clone = document.documentElement.cloneNode(true);
+
+        // Remove injected edit-mode UI and runtime-only elements
+        const selectorsToRemove = [
+            '.edit-overlay',
+            '.admin-panel-toggle-btn',
+            '.circle-settings-btn',
+            '.circle-settings-btn-edit-mode',
+            '.schueler-manager-btn-edit-mode',
+            '.notification-toast',
+            '.backgrounds',
+            '.progress',
+            '.controls',
+            '.slide-number',
+            '.speaker-notes',
+            '.pause-overlay',
+            '.aria-status'
+        ];
+
+        selectorsToRemove.forEach((selector) => {
+            clone.querySelectorAll(selector).forEach((el) => el.remove());
+        });
+
+        const doctype = document.doctype ? `<!DOCTYPE ${document.doctype.name}>\n` : '<!DOCTYPE html>\n';
+        const htmlContent = doctype + clone.outerHTML;
         
         const response = await fetch('http://localhost:8001/save', {
             method: 'POST',
@@ -318,6 +346,7 @@ export function getContentData() {
  */
 export function updateContentData(newData) {
     contentData = newData;
+    window.contentData = newData;
     setContentData(newData);
 }
 

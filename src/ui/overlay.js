@@ -12,6 +12,11 @@ let currentActiveTab = null;
 function getOrCreateOverlay() {
   if (overlayElement) return overlayElement;
   
+  const existingOverlays = document.querySelectorAll('.edit-overlay');
+  if (existingOverlays.length > 0) {
+    existingOverlays.forEach((el) => el.remove());
+  }
+
   overlayElement = document.createElement('div');
   overlayElement.className = 'edit-overlay is-hidden';
   overlayElement.style.zIndex = '99999';

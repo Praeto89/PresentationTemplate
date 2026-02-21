@@ -40,7 +40,10 @@ export function showSubtopicDetail(topicId, subtopicIndex, subtopicTitle) {
     // Setup close handler
     const closeButton = detailPanel.querySelector('.subtopic-detail-close');
     if (closeButton) {
-        closeButton.addEventListener('click', closeSubtopicDetail, { once: false });
+        closeButton.addEventListener('click', () => {
+            closeSubtopicDetail();
+            document.removeEventListener('keydown', handleEscape);
+        }, { once: true });
     }
     
     // Also close on escape key
