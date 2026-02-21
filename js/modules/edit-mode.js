@@ -897,7 +897,7 @@ function setupStudentManagerListeners() {
     
     // Deactivate Layer Mode Button - Use Event Delegation
     try {
-      const tabContent = document.querySelector('.tab-content');
+      const tabContent = document.getElementById('students-content') || document.querySelector('.overlay-tab-content');
       if (tabContent) {
         tabContent.addEventListener('click', (e) => {
           if (e.target.id === 'deactivate-layer-mode-btn' || e.target.closest('#deactivate-layer-mode-btn')) {
@@ -931,42 +931,45 @@ function setupStudentManagerListeners() {
     console.error('[EditMode] Error in setupStudentManagerListeners:', error);
   }
   
+  const handleLayerCountUpdate = () => {
+    const layerCountInput = document.getElementById('layer-count-input');
+    if (!layerCountInput) return;
+
+    const newCount = parseInt(layerCountInput.value);
+
+    if (newCount < 1 || newCount > 25) {
+      alert('Ungültige Anzahl. Bitte zwischen 1-25 wählen.');
+      return;
+    }
+
+    const currentCount = getLayerCount();
+
+    if (newCount < currentCount) {
+      // Warnung bei Reduktion
+      const confirmed = confirm(
+        `${currentCount - newCount} Schüler werden gelöscht. Alle ihre Edits gehen verloren. Fortfahren?`
+      );
+      if (!confirmed) return;
+    }
+
+    updateLayerCount(newCount);
+
+    // Aktualisiere UI
+    updateStudentSelectDropdown();
+    updateStudentManagerDisplay();
+    updateStudentDropdown(getAllStudents());
+    toggleStudentDropdownVisibility();
+
+    console.log('[EditMode] Layer count updated to:', newCount);
+  };
+
   // Layer Count Update - Use Event Delegation
-  const tabContent = document.querySelector('.tab-content');
+  const tabContent = document.getElementById('students-content') || document.querySelector('.overlay-tab-content');
   if (tabContent) {
     tabContent.addEventListener('click', (e) => {
       if (e.target.id === 'layer-count-update-btn' || e.target.closest('#layer-count-update-btn')) {
         console.log('[EditMode] Layer count update button clicked');
-        const layerCountInput = document.getElementById('layer-count-input');
-        if (!layerCountInput) return;
-        
-        const newCount = parseInt(layerCountInput.value);
-        
-        if (newCount < 1 || newCount > 25) {
-          alert('Ungültige Anzahl. Bitte zwischen 1-25 wählen.');
-          return;
-        }
-        
-        const currentCount = getLayerCount();
-        
-        if (newCount < currentCount) {
-          // Warnung bei Reduktion
-          const confirmed = confirm(
-            `${currentCount - newCount} Schüler werden gelöscht. Alle ihre Edits gehen verloren. Fortfahren?`
-          );
-          if (!confirmed) return;
-        }
-        
-        updateLayerCount(newCount);
-        createStudentConfigs(newCount, true);
-        
-        // Aktualisiere UI
-        updateStudentSelectDropdown();
-        updateStudentManagerDisplay();
-        updateStudentDropdown(getAllStudents());
-        toggleStudentDropdownVisibility();
-        
-        console.log('[EditMode] Layer count updated to:', newCount);
+        handleLayerCountUpdate();
       }
     });
   } else {
@@ -976,37 +979,11 @@ function setupStudentManagerListeners() {
     
     if (layerCountUpdateBtn && layerCountInput) {
       layerCountUpdateBtn.addEventListener('click', () => {
-        const newCount = parseInt(layerCountInput.value);
-        
-        if (newCount < 1 || newCount > 25) {
-          alert('Ungültige Anzahl. Bitte zwischen 1-25 wählen.');
-          return;
-        }
-        
-        const currentCount = getLayerCount();
-        
-        if (newCount < currentCount) {
-          // Warnung bei Reduktion
-          const confirmed = confirm(
-            `${currentCount - newCount} Schüler werden gelöscht. Alle ihre Edits gehen verloren. Fortfahren?`
-          );
-          if (!confirmed) return;
-        }
-        
-        updateLayerCount(newCount);
-        createStudentConfigs(newCount, true);
-        
-        // Aktualisiere UI
-        updateStudentSelectDropdown();
-        updateStudentManagerDisplay();
-        updateStudentDropdown(getAllStudents());
-        toggleStudentDropdownVisibility();
-        
-        console.log('[EditMode] Layer count updated to:', newCount);
+        handleLayerCountUpdate();
       });
     }
   }
-  
+
   // Student Select Dropdown
   const studentSelectEdit = document.getElementById('student-select-edit');
   if (studentSelectEdit) {
@@ -1267,11 +1244,19 @@ function setupAdminControls() {
   }
 
   if (generateBtn) {
-    generateBtn.addEventListener('click', handleGenerateSlides);
+    generateBtn.addEventListener('click', () => {
+      const input = document.getElementById('admin-circle-count');
+      const count = input ? parseInt(input.value, 10) : 10;
+      handleGenerateSlides(count);
+    });
   }
 
   if (refreshOverviewBtn) {
-    refreshOverviewBtn.addEventListener('click', handleRefreshOverview);
+    refreshOverviewBtn.addEventListener('click', () => {
+      const input = document.getElementById('admin-circle-count');
+      const count = input ? parseInt(input.value, 10) : 10;
+      handleRefreshOverview(count);
+    });
   }
 
   // Menu Management Controls
@@ -1348,9 +1333,47 @@ function setupChildEditor() {
 function createAdminUI() {
   adminUICreated = true;
   
+  // Build circle titles editor HTML from content data
+  const data = getContentData();
+  let circleTitlesHTML = '';
+  if (data && data.topics) {
+    circleTitlesHTML = data.topics.map((topic, idx) => `
+      <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+        <span style="min-width: 28px; font-weight: bold; color: #555;">Kreis ${idx + 1}:</span>
+        <input
+          type="text"
+          class="circle-title-input"
+          data-topic-index="${idx}"
+          data-topic-id="${topic.id}"
+          value="${(topic.title || '').replace(/"/g, '&quot;')}"
+          placeholder="Titel für Kreis ${idx + 1}"
+          style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;"
+        />
+      </div>
+    `).join('');
+  } else {
+    circleTitlesHTML = '<p style="color: #999;">Keine Topics vorhanden. Bitte zuerst Slides generieren.</p>';
+  }
+  
   const adminHTML = `
     <div class="admin-panel">
       
+      <!-- CIRCLE TITLES SECTION -->
+      <div class="admin-section">
+        <h3>🎯 Kreis-Titel bearbeiten</h3>
+        <div class="admin-control-group">
+          <div id="circle-titles-editor">
+            ${circleTitlesHTML}
+          </div>
+          <button id="save-circle-titles-btn" class="admin-btn-primary" style="margin-top: 10px;">
+            💾 Kreis-Titel speichern
+          </button>
+          <small style="display: block; margin-top: 5px; color: #666;">
+            Ändere die Titel der Kreise in der Übersichtsfolie und im Menü
+          </small>
+        </div>
+      </div>
+
       <!-- SLIDE GENERATION SECTION -->
       <div class="admin-section">
         <h3>📊 Slides generieren</h3>
@@ -1429,6 +1452,9 @@ function createAdminUI() {
   `;
 
   setTabContent('menu-admin', adminHTML);
+  
+  // Setup circle title save handler
+  setupCircleTitleEditor();
 
   // Re-assign element references
   topicSelectEl = document.getElementById('admin-topic-select');
@@ -1440,6 +1466,59 @@ function createAdminUI() {
   // Now setup with the new elements
   setupChildEditor();
   setupSizeControls();
+}
+
+/**
+ * Setup circle title editor - allows editing circle/topic titles from Menu tab
+ */
+function setupCircleTitleEditor() {
+  const saveBtn = document.getElementById('save-circle-titles-btn');
+  if (!saveBtn) return;
+  
+  saveBtn.addEventListener('click', () => {
+    const inputs = document.querySelectorAll('.circle-title-input');
+    const data = getContentData();
+    
+    if (!data || !data.topics) {
+      showNotification('❌ Keine Content-Daten vorhanden!', 'error');
+      return;
+    }
+    
+    inputs.forEach((input) => {
+      const topicId = parseInt(input.dataset.topicId, 10);
+      const newTitle = input.value.trim();
+      
+      const topic = data.topics.find(t => t.id === topicId);
+      if (topic && newTitle) {
+        topic.title = newTitle;
+      }
+    });
+    
+    // Update content data
+    updateContentData(data);
+    
+    // Update circle texts in the overview slide
+    const circles = document.querySelectorAll('.circle-item');
+    circles.forEach((circle, idx) => {
+      const textEl = circle.querySelector('.circle-text');
+      if (textEl && data.topics[idx]) {
+        textEl.textContent = data.topics[idx].title;
+      }
+    });
+    
+    // Update topic select dropdown in admin panel
+    renderTopicOptions(data.topics);
+    
+    // Save changes
+    saveContent().then(() => {
+      showNotification('✅ Kreis-Titel gespeichert!', 'success');
+    }).catch(err => {
+      console.error('[EditMode] Error saving circle titles:', err);
+      showNotification('⚠️ Titel aktualisiert (Speichern fehlgeschlagen)', 'warning');
+    });
+    
+    console.log('[EditMode] Circle titles updated');
+  });
 }
 
 /**
@@ -1829,6 +1908,11 @@ function showCircleSettingsModal() {
  * Generate and insert new slides
  */
 function handleGenerateSlides(circleCount) {
+  // Guard: ensure circleCount is a valid number (could be Event if called from raw click handler)
+  if (typeof circleCount !== 'number' || isNaN(circleCount)) {
+    const input = document.getElementById('admin-circle-count') || document.getElementById('modal-circle-count');
+    circleCount = input ? parseInt(input.value, 10) : 10;
+  }
   if (circleCount < 3 || circleCount > 12) {
     showNotification('❌ Anzahl muss zwischen 3 und 12 liegen!', 'error');
     return;
@@ -1889,6 +1973,11 @@ function handleGenerateSlides(circleCount) {
  * Refresh only the overview circle arrangement
  */
 function handleRefreshOverview(circleCount) {
+  // Guard: ensure circleCount is a valid number
+  if (typeof circleCount !== 'number' || isNaN(circleCount)) {
+    const input = document.getElementById('admin-circle-count') || document.getElementById('modal-circle-count');
+    circleCount = input ? parseInt(input.value, 10) : 10;
+  }
   if (circleCount < 3 || circleCount > 12) {
     showNotification('❌ Anzahl muss zwischen 3 und 12 liegen!', 'error');
     return;

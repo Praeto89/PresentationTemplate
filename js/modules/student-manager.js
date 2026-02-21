@@ -339,10 +339,9 @@ export function reorderStudents(fromIndex, toIndex) {
   const [movedStudent] = studentConfigs.splice(fromIndex, 1);
   studentConfigs.splice(toIndex, 0, movedStudent);
   
-  // Aktualisiere IDs
+  // Aktualisiere IDs (keep custom names, only update id)
   studentConfigs.forEach((student, index) => {
     student.id = index;
-    student.name = student.name.replace(/Schüler \d+/, `Schüler ${index + 1}`);
   });
   
   // Passe currentStudentIndex an

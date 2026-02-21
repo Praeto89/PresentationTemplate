@@ -99,12 +99,15 @@ export function initMenu() {
     const { radius, tileSize, centerX, centerY, aspectStretchX, aspectStretchY } = layoutCache;
     const halfTile = tileSize / 2;
     
-    // Positioniere zentralen Kreis
-    const centerCircleSize = tileSize * 1.2; // Etwas größer als normale Tiles
-    centerCircle.style.left = `${centerX - centerCircleSize / 2}px`;
-    centerCircle.style.top = `${centerY - centerCircleSize / 2}px`;
-    centerCircle.style.width = `${centerCircleSize}px`;
-    centerCircle.style.height = `${centerCircleSize}px`;
+    // Positioniere zentralen Kreis (falls vorhanden)
+    const centerCircle = container.querySelector('.center-circle') || container.querySelector('.spiral-center');
+    if (centerCircle) {
+      const centerCircleSize = tileSize * 1.2;
+      centerCircle.style.left = `${centerX - centerCircleSize / 2}px`;
+      centerCircle.style.top = `${centerY - centerCircleSize / 2}px`;
+      centerCircle.style.width = `${centerCircleSize}px`;
+      centerCircle.style.height = `${centerCircleSize}px`;
+    }
 
     topics.forEach((topic, index) => {
         // Berechne Position im Kreis (mit Aspect-Stretch für Ellipse)

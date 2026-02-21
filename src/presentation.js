@@ -6,6 +6,14 @@
 import { initEditor } from './editor.js';
 import { initEditMode } from '../js/modules/edit-mode.js';
 import { initStudentManager } from '../js/modules/student-manager.js';
+import { loadContent } from '../js/modules/storage.js';
+import {
+  initStudentLayerController,
+  toggleStudentDropdownVisibility,
+  updateStudentDropdown,
+  reloadPresentationForStudent,
+} from '../js/modules/student-layer-controller.js';
+import { getAllStudents, isLayerModeEnabled, getCurrentStudent } from '../js/modules/student-manager.js';
 
 async function init() {
   // Initialize Student Manager (loads saved students from localStorage)
@@ -113,6 +121,27 @@ async function init() {
   // Custom arrow key navigation
   registerCustomNavigationControls();
   
+  // Load content data (needed for admin UI, student layers, etc.)
+  await loadContent();
+
+  // Initialize Student Layer Controller
+  try {
+    initStudentLayerController();
+    toggleStudentDropdownVisibility();
+    const students = getAllStudents();
+    if (students.length > 0) {
+      updateStudentDropdown(students);
+      if (isLayerModeEnabled()) {
+        const currentStudent = getCurrentStudent();
+        if (currentStudent) {
+          console.log('[Presentation] Loading for student:', currentStudent.name);
+        }
+      }
+    }
+  } catch (error) {
+    console.warn('[Presentation] Student layer controller error:', error);
+  }
+
   // Initialize editor if in edit mode
   initEditor();
   initEditMode();
@@ -394,23 +423,26 @@ function toggleHover(currentIndices, vIndex) {
 }
 
 function navigateToNextTopic(currentIndices) {
-  // From overview (h=0) jump directly to first topic
+  // From overview (h=0) jump directly to first topic group-intro
   if (currentIndices.h === 0) {
     console.log('[Navigation] Moving from overview to first topic');
-    Reveal.slide(1, 1);
+    Reveal.slide(1, 0);
     return;
   }
 
-  // From a topic (h>=1), go to next topic in sequence
-  const topics = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-  let nextTopic = topics.find((t) => t > currentIndices.h);
+  // From a topic (h>=1), go to next topic group-intro
+  const totalH = Reveal.getHorizontalSlides().length;
+  const nextH = currentIndices.h + 1;
 
-  if (!nextTopic) {
-    nextTopic = topics[0];
+  if (nextH >= totalH) {
+    // Wrap around or stay (last slide is closing)
+    console.log('[Navigation] Already at last topic, going to closing slide');
+    Reveal.slide(totalH - 1, 0);
+    return;
   }
 
-  console.log(`[Navigation] Moving from h=${currentIndices.h} to h=${nextTopic}`);
-  Reveal.slide(nextTopic, 1);
+  console.log(`[Navigation] Moving from h=${currentIndices.h} to h=${nextH}`);
+  Reveal.slide(nextH, 0);
 }
 
 function hoverPlaceholder(currentIndices, vIndex) {
@@ -496,8 +528,8 @@ function setupNavigationBoxes() {
     if (!returnBtn) return;
     
     const indices = Reveal.getIndices();
-    // Return to v=1 (group-intro) of current horizontal slide
-    Reveal.slide(indices.h, 1);
+    // Return to v=0 (group-intro) of current horizontal slide
+    Reveal.slide(indices.h, 0);
   });
 }
 
@@ -560,7 +592,7 @@ function collapseBox(box, overlay) {
   }, 300);
 }
 
-function showCircleHoverImages(circle) {
+async function showCircleHoverImages(circle) {
   // Only show if on overview slide (h=0) and NOT in Reveal's built-in overview mode
   const overviewSection = document.querySelector('#overview');
   if (!overviewSection || !overviewSection.classList.contains('present')) {
@@ -589,20 +621,25 @@ function showCircleHoverImages(circle) {
   const img = document.createElement('img');
   img.className = isEven ? 'hover-image-left' : 'hover-image-right';
   
-  // Try loading the image - if it fails, try next name
-  let currentIndex = 0;
-  
-  const tryLoadImage = () => {
-    if (currentIndex < possibleNames.length) {
-      img.src = possibleNames[currentIndex];
-      currentIndex++;
-    } else {
-      img.style.display = 'none';
+  // Use fetch HEAD request to check if image exists before setting src
+  // This avoids noisy 404 console errors
+  let imageFound = false;
+  for (const name of possibleNames) {
+    try {
+      const resp = await fetch(name, { method: 'HEAD' });
+      if (resp.ok) {
+        img.src = name;
+        imageFound = true;
+        break;
+      }
+    } catch (e) {
+      // silently skip
     }
-  };
+  }
   
-  img.onerror = tryLoadImage;
-  tryLoadImage();
+  if (!imageFound) {
+    img.style.display = 'none';
+  }
   
   overlay.appendChild(img);
 
@@ -660,8 +697,9 @@ function setupCircleNavigation() {
   });
 }
 
-// Make setupNavigationBoxes globally accessible for edit-mode.js
+// Make setupNavigationBoxes and setupCircleNavigation globally accessible
 window.setupNavigationBoxes = setupNavigationBoxes;
+window.setupCircleNavigation = setupCircleNavigation;
 
 // Start
 init();
