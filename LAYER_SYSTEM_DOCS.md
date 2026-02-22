@@ -114,7 +114,7 @@ studentConfigs: [
    - Neue Tab "Schüler" mit vollständiger Verwaltungs-UI
    - Integration aller Student-Manager-Funktionen
 
-4. **`src/app.js`**
+4. **`presentation.js`**
    - Initialisiert `student-manager` vor anderen Modulen
    - Ruft `initStudentLayerController()` auf
 
@@ -137,7 +137,7 @@ studentConfigs: [
    - Name ändern (z.B. "Max Mustermann")
    - Anzahl Kreise festlegen (falls unterschiedlich)
    - Inhalte bearbeiten (wie normal)
-7. Präsentation speichern (`Strg+S` oder File→Save)
+7. Änderungen werden automatisch in localStorage gespeichert; für permanentes Speichern den Save-Server nutzen (`start_edit_mode.bat`)
 
 ### Präsentation durchführen:
 1. Präsentation öffnen

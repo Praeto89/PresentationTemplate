@@ -60,9 +60,9 @@ Eine Präsentation
 
 ## Tipps & Tricks
 
-### 💾 Speichern nicht vergessen!
-- Nach Änderungen im Edit-Mode: `Strg+S` oder File → Save
-- Alle Schüler-Konfigurationen werden in Browser-Storage gespeichert (lokal)
+### 💾 Speichern
+- Schüler-Konfigurationen und Edits werden automatisch im **localStorage** gespeichert
+- Für permanentes Speichern als HTML: Save-Server nutzen (`start_edit_mode.bat` startet diesen automatisch)
 
 ### 🔄 Schüler-Reihenfolge ändern
 - Im Edit-Mode → "Schüler"-Tab
@@ -107,7 +107,7 @@ Eine Präsentation
 ## Technische Infos
 
 - **Speicherung:** Browser localStorage (lokal)
-- **Backup:** Regelmäßig mit File→Export sichern
+- **Backup:** Regelmäßig über HTML-Export sichern (Save-Server muss laufen)
 - **Module:** Siehe [LAYER_SYSTEM_DOCS.md](LAYER_SYSTEM_DOCS.md)
 - **Debug:** Browser-Konsole öffnen (F12) für Logs
 

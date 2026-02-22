@@ -1,173 +1,180 @@
-# Reveal.js Master Thesis Presentation
+# Reveal.js Präsentation – Master Thesis Template
 
-An interactive presentation built with Reveal.js featuring custom animations, circular tile navigation, mindmap-style sub-navigation, and an admin mode for content editing.
-
-**Note**: The admin mode and circular menu described below refer to a legacy prototype (index-legacy.html) and are not active in the current entry (index.html). Active styles live in css/presentation.css.
+Interaktive Präsentation mit Reveal.js, kreisförmiger Themen-Navigation, Nav-Box Detail-Ansichten, Multi-Schüler Layer-System und integriertem Edit-Mode.
 
 ## Features
 
-- **Book Opening Animation**: 3D book flip effect with zoom transition to title slide
-- **Circular Tile Menu**: Interactive main menu with topic tiles arranged in a circle
-- **Mindmap Sub-Navigation**: Childnode tiles orbit around parent tiles with curved SVG connections
-- **Book Page Container**: Paper-like page design with Satzspiegel (typographic margins)
-- **Spiral Zoom Transitions**: Custom animations with color theme changes (green to soft blue)
-- **Bookmark Persistence**: Mark important subtopics, saved in localStorage
-- **Admin Mode**: Edit tiles and content directly in the browser with local file persistence
-- **Closing Animation**: Book closing effect with thank you message
-- **Offline Support**: Fully functional without internet connection
-- **Responsive Design**: Optimized for 16:9 and ultrawide displays
+- **Kreisförmige Übersicht**: Themenkreise auf einer zentralen Spiral-Übersicht mit Hover-Bildern
+- **Group Intros mit Nav-Boxes**: Jedes Thema hat eine Übersichtsseite mit klickbaren, expandierbaren Detail-Karten
+- **Inline Edit-Mode**: Texte direkt im Browser bearbeiten (`Ctrl+E` oder `?mode=edit`)
+- **Multi-Schüler Layer-System**: Separate Präsentationen pro Schüler mit eigenen Inhalten und Kreisanzahlen
+- **HTML-Export**: Änderungen per `Ctrl+S` direkt in die HTML-Datei schreiben (via Save-Server)
+- **PDF-Export**: Export-Guide für druckbare PDF-Versionen
+- **Offline-fähig**: Funktioniert komplett ohne Internetverbindung
+- **Responsive**: Optimiert für 16:9 und Breitbild-Displays
+- **Hintergrundbild**: Automatische Erkennung aus `assets/background/`
 
-## New Mindmap Features
-
-### Childnode Tiles
-- Subtopics appear as small tile satellites around each parent topic
-- Ring layout (default), half-ring (near edges), or stack (tight spaces)
-- Collision avoidance prevents overlap with viewport edges
-
-### SVG Connection Lines  
-- Curved Bézier paths connect parent to children
-- Animated draw effect on focus (stroke-dashoffset)
-- Subtle in idle, prominent when focused
-
-### Bookmark System
-- Toggle bookmark icon on any childnode tile
-- Bookmarks persist via localStorage
-- Visual indicator (red accent) for bookmarked items
-
-### Book Page Design
-- `.book-shell` outer frame with subtle background
-- `.book-page` container with paper texture, soft shadows
-- `.book-gutter` center fold line (visible on large screens)
-- Serif typography option via `--font-book` variable
-
-## Project Structure
+## Projektstruktur
 
 ```
-reveal-thesis-presentation/
-├── index.html              # Main presentation file
-├── package.json            # Node.js dependencies
-├── css/
-│   └── custom/
-│       ├── animations.css  # Book flip, zoom, and mindmap line animations
-│       ├── transitions.css # Spiral zoom and color transitions
-│       └── menu.css        # Circular menu, childnode tiles, book container
+MasterThesis/
+├── index.html                  # Hauptdatei (Reveal.js Slides)
+├── presentation.js             # Einstiegspunkt (Reveal-Init, Navigation, Kreise)
+├── save_server.py              # Python-Server für HTML-Speicherung (Port 8001)
+├── start_presentation.bat      # Startet Präsentation (Port 8000)
+├── start_edit_mode.bat         # Startet Edit-Mode (Port 8000 + 8001)
+├── config.bat                  # Python-Konfiguration
+├── package.json                # Node.js Dependencies
+├── eslint.config.js            # ESLint-Konfiguration
+│
 ├── js/
+│   ├── config/
+│   │   └── index.js            # Zentrale Konfiguration (Animationen, Layout, etc.)
 │   └── modules/
-│       ├── menu.js         # Tile rendering, childnode positioning, SVG lines
-│       ├── viewport-controller.js # State machine, computeMindmapLayout()
-│       ├── admin.js        # Admin mode functionality
-│       ├── storage.js      # File operations, bookmark persistence
-│       └── navigation.js   # Custom navigation logic
-├── assets/
-│   └── images/             # Optimized images and textures
+│       ├── edit-mode.js        # Edit-Mode Orchestrator
+│       ├── slide-editor.js     # Inline-Editing & Nav-Box Sync
+│       ├── export-html.js      # Ctrl+S HTML-Export via Save-Server
+│       ├── admin-panel.js      # Kreis-Titel, Slide-Generierung, Menu-Admin
+│       ├── overlay.js          # Overlay/Tab-System für Edit-Mode
+│       ├── menu.js             # Menü-Rendering & Datenstruktur
+│       ├── menu-layout.js      # Menü-Layout-Berechnungen
+│       ├── navigation.js       # Tastatur-Navigation & Escape-Handling
+│       ├── camera-controller.js # Zoom-Animation State Machine
+│       ├── viewport-controller.js # Wrapper für Camera & Layout
+│       ├── layout-engine.js    # Mindmap-Layout & Kollisionserkennung
+│       ├── storage.js          # localStorage & content.json Verwaltung
+│       ├── student-manager.js  # Schüler-Datenverwaltung
+│       ├── student-layer-controller.js # Schüler-Wechsel & Slide-Neuladen
+│       ├── student-ui.js       # Schüler-Verwaltungs-UI im Overlay
+│       ├── student-drag-drop.js # Drag-Drop Schüler-Reihenfolge
+│       ├── slide-generator.js  # Automatische Slide-Generierung
+│       ├── subtopic-detail.js  # Detail-Panel für Subtopics
+│       ├── pdf-export.js       # PDF-Export Guide
+│       └── utils/
+│           ├── math.js         # Mathematische Hilfsfunktionen
+│           ├── normalize.js    # Daten-Normalisierung
+│           └── notification.js # Toast-Benachrichtigungen
+│
+├── css/
+│   ├── presentation.css        # Haupt-Styles (Kreise, Nav-Boxes, Slides)
+│   └── editor.css              # Edit-Mode Styles (Overlay, Buttons, Editing)
+│
+├── styles/
+│   ├── tokens.css              # Design-Tokens (Farben, Abstände, Animationen)
+│   ├── mindmap.css             # Mindmap-spezifische Styles
+│   ├── menu.css                # Menü-Styles
+│   └── motion.css              # Animations-Styles
+│
 ├── data/
-│   └── content.json        # Editable content structure (topics, subtopics)
-├── dist/                   # Reveal.js core files (generated)
-└── plugin/                 # Reveal.js plugins (generated)
+│   └── content.json            # Editierbarer Inhalt (Topics, Subtopics)
+│
+├── assets/
+│   └── background/             # Hintergrundbilder (automatisch erkannt)
+│
+├── dist/                       # Reveal.js Core (generiert via npm install)
+└── plugin/                     # Reveal.js Plugins (highlight, markdown, math, notes, search, zoom)
 ```
 
 ## Installation
 
-1. Clone or download this repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-   This will download Reveal.js and copy necessary files to `dist/` and `plugin/` directories.
-
-## Usage
-
-### Running Locally
-
-Simply open `index.html` in a modern web browser (Chrome, Edge, Firefox, Safari).
-
-For development with live reload, use a local server:
 ```bash
-npx serve
+git clone https://github.com/Praeto89/PresentationTemplate.git
+cd PresentationTemplate
+npm install
 ```
-or use VS Code's Live Server extension.
 
-### Offline Use on Other Devices
+`npm install` lädt Reveal.js herunter und kopiert `dist/` und `plugin/` automatisch.
 
-1. Copy the entire `reveal-thesis-presentation` folder to the target device
-2. Ensure `dist/` and `plugin/` folders are included
-3. Open `index.html` in any modern browser
+## Starten
 
-No internet connection required!
+### Präsentation (Nur Anzeige)
 
-### Admin Mode
+```bash
+start_presentation.bat
+```
 
-Activate admin mode to edit content:
+Startet einen Python HTTP-Server auf Port 8000 und öffnet `http://localhost:8000` im Browser.
 
-1. **Via URL**: Add `?mode=admin` to the URL (e.g., `index.html?mode=admin`)
-2. **Via Keyboard**: Press `Ctrl+E` during the presentation
+### Edit-Mode (Bearbeiten & Speichern)
 
-In admin mode:
-- Click on tiles or text to edit content
-- Changes are saved to `data/content.json`
-- Use Export/Import buttons to backup content
+```bash
+start_edit_mode.bat
+```
 
-**Note**: Modern browsers (Chrome, Edge) support direct file editing. Firefox and Safari use download/upload for content persistence.
+Startet:
+- **Save-Server** auf Port 8001 (`save_server.py` – ermöglicht `Ctrl+S` Speicherung)
+- **HTTP-Server** auf Port 8000
+- Öffnet `http://localhost:8000/index.html?mode=edit` im Browser
+
+### Manueller Start
+
+```bash
+python -m http.server 8000
+```
+
+Dann im Browser: `http://localhost:8000` (Präsentation) oder `http://localhost:8000/index.html?mode=edit` (Edit-Mode).
+
+## Edit-Mode
+
+Aktivierung: `?mode=edit` in der URL oder `Ctrl+E` während der Präsentation.
+
+| Funktion | Beschreibung |
+|----------|-------------|
+| **Texte bearbeiten** | Klick auf Titel, Untertitel, Absätze → direkt editieren |
+| **Übersicht bearbeiten** | Haupttitel, Untertitel und Kreis-Texte auf Slide 0 |
+| **Nav-Box Inhalte** | Expandierte Nav-Boxes sind editierbar |
+| **Kreis-Einstellungen** | ⚙️-Button → Anzahl, Grösse, Positionierung |
+| **Schüler verwalten** | 👥-Button → Layer-System, Drag-Drop Reihenfolge |
+| **Menu verwalten** | Overlay → Tab "Menu verwalten" → Subtopics, Titel |
+| **Speichern** | `Ctrl+S` → exportiert in HTML (benötigt Save-Server) |
 
 ## Navigation
 
-- **Arrow Keys**: Navigate between slides (standard Reveal.js)
-- **Click Tiles**: Jump directly to topic content
-- **Menu Button**: Return to circular main menu (available on content slides)
-- **Esc**: Overview mode
+| Taste | Aktion |
+|-------|--------|
+| `→` Pfeil rechts | Nächstes Thema (Group Intro) |
+| `←` `↑` `↓` Pfeile | Hover-Vorschau der Detail-Slides |
+| `Esc` | Zurück zur Übersicht |
+| Klick auf Kreis | Zum Thema navigieren |
+| Klick auf Nav-Box | Detail-Inhalt expandieren |
+| `Ctrl+E` | Edit-Mode ein/ausschalten |
+| `Ctrl+S` | HTML exportieren (im Edit-Mode) |
 
-## Deployment to GitHub Pages
+## Multi-Schüler Layer-System
 
-1. Create a new repository on GitHub
-2. Add remote and push:
-   ```bash
-   git remote add origin https://github.com/yourusername/your-repo-name.git
-   git add .
-   git commit -m "Initial commit"
-   git push -u origin main
-   ```
-3. Enable GitHub Pages:
-   - Go to repository Settings → Pages
-   - Select "Deploy from branch"
-   - Choose `main` branch and `/ (root)` folder
-   - Save and wait for deployment
+Ermöglicht separate Präsentationen pro Schüler. Siehe [QUICK_START_LAYERS.md](QUICK_START_LAYERS.md) für eine Schnellanleitung und [LAYER_SYSTEM_DOCS.md](LAYER_SYSTEM_DOCS.md) für die technische Dokumentation.
 
-Your presentation will be available at: `https://yourusername.github.io/your-repo-name/`
+**Kurzübersicht:**
+1. Edit-Mode aktivieren (`Ctrl+E` oder `?mode=edit`)
+2. Tab "Schüler" → Layer-Modus aktivieren
+3. Schüler hinzufügen, benennen, Kreisanzahl setzen
+4. Schüler-Dropdown (oben links) zum Wechseln
 
-## Browser Compatibility
+## Anpassung
 
-- **Chrome/Edge**: Full support including File System Access API
-- **Firefox**: Full support with download/upload fallback for admin mode
-- **Safari**: Full support with download/upload fallback for admin mode
+| Was | Wo |
+|-----|-----|
+| Farben & Abstände | [styles/tokens.css](styles/tokens.css) |
+| Kreis-Styles | [css/presentation.css](css/presentation.css) |
+| Edit-Mode UI | [css/editor.css](css/editor.css) |
+| Layout-Parameter | [js/config/index.js](js/config/index.js) |
+| Inhalte | [data/content.json](data/content.json) oder Edit-Mode |
+| Hintergrundbild | Datei in `assets/background/` ablegen |
 
-## Customization
+## Browser-Kompatibilität
 
-- **Colors**: Edit CSS variables in `css/presentation.css`
-- **Book Design**: Adjust paper colors and shadows in `css/presentation.css` (book page selectors)
-- **Childnode Layout**: Modify `--childnode-*` variables for size and spacing
-- **Animations**: Modify keyframes in `css/presentation.css` (keyframes and transitions)
-- **Layout Algorithm**: Edit `computeMindmapLayout()` in `js/modules/viewport-controller.js`
-- **Tile Count**: Adjust circle calculations in `js/modules/menu.js`
-- **Content**: Edit `data/content.json` or use admin mode
+- **Chrome / Edge**: Volle Unterstützung
+- **Firefox**: Volle Unterstützung
+- **Safari**: Volle Unterstützung
 
-### Key CSS Variables
+## Deployment (GitHub Pages)
 
-```css
-/* Book Page Design */
---paper-bg: #fdfbf7;           /* Paper background color */
---paper-shadow: ...;           /* Multi-layer page shadow */
---font-book: 'Crimson Text', serif; /* Book typography */
+1. Repository auf GitHub erstellen
+2. Pushen: `git push -u origin master`
+3. Settings → Pages → Branch `master`, Ordner `/ (root)` → Save
 
-/* Mindmap Childnodes */
---childnode-size-idle: clamp(28px, 4vmin, 48px);
---childnode-size-focus: clamp(60px, 10vmin, 120px);
---childnode-ring-radius: clamp(60px, 12vmin, 140px);
+Die Präsentation ist dann verfügbar unter: `https://<username>.github.io/<repo-name>/`
 
-/* Connection Lines */
---line-color-idle: rgba(44, 62, 80, 0.15);
---line-color-focus: rgba(44, 62, 80, 0.5);
-```
+## Lizenz
 
-## License
-
-MIT License - Feel free to use and modify for your thesis presentation.
+MIT License

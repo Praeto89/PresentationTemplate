@@ -1,154 +1,118 @@
 # Schnellstart-Anleitung
 
-**Hinweis**: Admin-Modus und Kachel-Menü beziehen sich auf eine Legacy-Variante (index-legacy.html) und sind in der aktiven Präsentation (index.html) nicht enthalten. Aktive Styles befinden sich in css/presentation.css.
-
 ## Präsentation öffnen
 
-1. Öffnen Sie `index.html` in einem modernen Browser (Chrome, Edge, Firefox, Safari)
-2. Die Präsentation startet automatisch mit der Buch-Öffnungs-Animation
+### Variante A – Batch-Dateien (empfohlen, Windows)
+
+| Datei | Zweck |
+|---|---|
+| `start_presentation.bat` | Startet HTTP-Server auf Port 8000 und öffnet die Präsentation im Browser |
+| `start_edit_mode.bat` | Startet zusätzlich den Save-Server (`save_server.py`, Port 8001) und öffnet im Edit-Mode |
+
+> Die Batch-Dateien nutzen die Python-Version aus `config.bat`. Dort kann der Pfad angepasst werden.
+
+### Variante B – Manuell
+
+1. Terminal im Projektordner öffnen
+2. HTTP-Server starten:
+   ```bash
+   python -m http.server 8000
+   ```
+3. Browser öffnen: `http://localhost:8000`
 
 ## Navigation
 
-### Grundlegende Navigation
-- **Pfeiltasten** ← → ↑ ↓: Zwischen Slides navigieren
-- **Leertaste**: Nächste Slide
-- **ESC**: Übersichtsmodus
-- **F**: Vollbildmodus
+| Taste / Aktion | Funktion |
+|---|---|
+| ← → ↑ ↓ | Zwischen Slides navigieren |
+| Leertaste | Nächste Slide |
+| ESC | Übersichtsmodus (alle Slides) |
+| F | Vollbildmodus |
+| S | Speaker-Notes (neues Fenster) |
+| H / Home | Zurück zum Hauptmenü |
+| End | Zur Abschluss-Slide springen |
+| Klick auf Kreis-Thema | Direkter Sprung zum Thema |
+| "Zurück zum Menü"-Button | Auf jeder Content-Slide verfügbar |
 
-### Spezielle Navigation
-- **Kachel anklicken**: Direkter Sprung zum Thema mit Spiral-Zoom
-- **H oder Home**: Zurück zum Hauptmenü
-- **End**: Zur Abschluss-Slide springen
-- **"Zurück zum Menü" Button**: Auf jeder Content-Slide verfügbar
-
-## Admin-Modus
+## Edit-Mode
 
 ### Aktivierung
-1. **URL-Parameter**: Fügen Sie `?mode=admin` zur URL hinzu
-  - Beispiel: `file:///C:/Users/USERNAME/reveal-thesis-presentation/index.html?mode=admin`
-2. **Tastenkombination**: Drücken Sie `Strg+E` während der Präsentation
 
-### Funktionen im Admin-Modus
-- **Titel bearbeiten**: Klicken Sie auf Titel, Untertitel, Autor auf der Intro-Slide
-- **Kacheln bearbeiten**: Klicken Sie auf Kachel-Titel im Hauptmenü
-- **Content bearbeiten**: Klicken Sie auf Topic-Titel und Inhalte
-- **Exportieren**: Speichert Änderungen als JSON-Datei
-- **Importieren**: Lädt JSON-Datei mit neuen Inhalten
+| Methode | Anleitung |
+|---|---|
+| **URL-Parameter** | `?mode=edit` an URL anhängen, z.B. `http://localhost:8000?mode=edit` |
+| **Batch-Datei** | `start_edit_mode.bat` ausführen (macht alles automatisch) |
+| **Tastenkombination** | `Strg+E` während der Präsentation |
+
+### Was kann bearbeitet werden?
+
+- **Übersicht**: Übertitel und Untertitel direkt anklicken und bearbeiten
+- **Kreis-Themen**: Titel der Themen im Kreis-Menü anklicken
+- **Content-Slides**: Überschriften und Texte auf jeder Slide anklicken
+- **Erweiterte Nav-Boxen**: Auch in aufgeklappten Navigations-Boxen editierbar
+
+Editierbare Felder werden beim Hovern visuell hervorgehoben.
 
 ### Änderungen speichern
-1. Klicken Sie auf "Inhalt exportieren"
-2. **Chrome/Edge**: Wählen Sie Speicherort (kann direkt `data/content.json` überschreiben)
-3. **Firefox/Safari**: Datei wird heruntergeladen, ersetzen Sie manuell `data/content.json`
 
-## Struktur der Content-Datei
+Änderungen werden automatisch im **localStorage** des Browsers gespeichert und bleiben beim Neuladen erhalten.
 
-`data/content.json` enthält alle editierbaren Inhalte:
-
-```json
-{
-  "title": "Ihr Titel",
-  "subtitle": "Ihr Untertitel",
-  "author": "Ihr Name",
-  "topics": [
-    {
-      "id": 1,
-      "title": "Thema-Name",
-      "color": "#4CAF50",
-      "slides": [...]
-    }
-  ],
-  "closingMessage": "Danke-Nachricht"
-}
-```
+Für permanentes Speichern (HTML-Export):
+1. Der Save-Server muss laufen (`save_server.py` auf Port 8001)
+2. `start_edit_mode.bat` startet diesen automatisch
+3. Über die Export-Funktion kann die Datei gespeichert werden
 
 ## Animationen
 
-### Buch-Öffnung (Intro)
-- Automatisch beim Start
-- 3D-Flip-Effekt mit Zoom zum Titel
+| Animation | Wann |
+|---|---|
+| Buch-Öffnung | Beim Start der Präsentation (3D-Flip + Zoom) |
+| Kreis-Menü | Themen kreisförmig angeordnet mit Hover-Effekten |
+| Spiral-Zoom | Beim Klick auf ein Thema (Rotation + Zoom + Farbwechsel) |
+| Buch-Schließung | Button "Buch schließen" auf Abschluss-Slide |
 
-### Hauptmenü
-- Grüner Hintergrund mit Verlauf
-- 6 Kacheln im Kreis angeordnet
-- Hover-Effekt: Vergrößerung und Schatten
+## Layer-System (Schüler-Ebenen)
 
-### Spiral-Zoom (Topic-Übergang)
-- Beim Klick auf Kachel
-- Rotation + Zoom + Skalierung
-- Farbwechsel: Grün → Hellblau mit Wolken
+Das Projekt enthält ein Layer-System für personalisierte Schüler-Inhalte:
 
-### Buch-Schließung (Abschluss)
-- Button "Buch schließen" auf letzter Slide
-- Reverse 3D-Transformation
-- "Danke"-Text auf Buchrücken
+- **Schüler-Verwaltung**: Schüler hinzufügen/entfernen
+- **Eigene Inhalte**: Jeder Schüler kann eigene Texte und Medien auf Slides ablegen
+- **Drag & Drop**: Inhalte per Drag & Drop positionieren
+
+Details: siehe `LAYER_SYSTEM_DOCS.md` und `QUICK_START_LAYERS.md`
 
 ## Offline-Nutzung
 
 Die Präsentation funktioniert komplett offline:
-- Alle Reveal.js-Dateien sind in `dist/` und `plugin/` enthalten
+- Alle Reveal.js-Plugins in `plugin/`
 - Keine CDN- oder Internet-Abhängigkeiten
 - Einfach kompletten Ordner kopieren und auf beliebigem Gerät öffnen
 
-## GitHub Pages Deployment
-
-### Einfache Methode
-1. Erstellen Sie ein Repository auf GitHub
-2. Führen Sie folgende Befehle aus:
-   ```bash
-   git remote add origin https://github.com/IhrUsername/IhrRepo.git
-   git push -u origin master
-   ```
-3. GitHub → Repository → Settings → Pages
-4. Source: "Deploy from branch"
-5. Branch: `master`, Folder: `/ (root)`
-6. Speichern und warten (~2 Minuten)
-
-URL: `https://IhrUsername.github.io/IhrRepo/`
-
 ## Troubleshooting
 
-### Buch-Animation startet nicht
-- Warten Sie 500ms nach dem Laden
-- Prüfen Sie Browser-Konsole (F12) auf Fehler
-
-### Kacheln werden nicht angezeigt
-- Stellen Sie sicher, dass `data/content.json` existiert
-- Prüfen Sie Browser-Konsole auf JSON-Parsing-Fehler
-
-### Admin-Modus funktioniert nicht
-- Chrome/Edge: File System Access API vollständig unterstützt
-- Firefox/Safari: Nutzen Sie Download/Upload-Fallback
-
-### Änderungen gehen verloren
-- Im Admin-Modus: Immer "Inhalt exportieren" klicken
-- Ersetzen Sie `data/content.json` mit exportierter Datei
-- Aktualisieren Sie die Seite
-
-## Tipps für die Präsentation
-
-1. **Vorbereitung**: Testen Sie alle Animationen vorher
-2. **Vollbild**: Drücken Sie `F` für Vollbildmodus
-3. **Sprecher-Notizen**: Drücken Sie `S` für Speaker-View (neues Fenster)
-4. **Übersicht**: `ESC` zeigt alle Slides auf einmal
-5. **Direkte Navigation**: Nutzen Sie Kacheln für flexibles Springen zwischen Themen
+| Problem | Lösung |
+|---|---|
+| Buch-Animation startet nicht | Browser-Konsole prüfen (F12), Cache leeren |
+| Themen werden nicht angezeigt | `data/content.json` auf Syntax prüfen |
+| Edit-Mode reagiert nicht | URL enthält `?mode=edit`? Server läuft? |
+| Änderungen gehen verloren | Edit-Mode nutzen, Save-Server für permanentes Speichern starten |
+| Batch-Datei startet nicht | Python-Pfad in `config.bat` prüfen |
 
 ## Customization
 
-### Farben ändern
-- `css/presentation.css`: CSS-Variablen für Farben und Hintergründe
-- `data/content.json`: `color` Eigenschaft für Kachel-Akzente
+| Was | Wo |
+|---|---|
+| Farben & Design-Tokens | `styles/tokens.css` |
+| Haupt-Layout | `css/presentation.css` |
+| Edit-Mode Styles | `css/editor.css` |
+| Themen & Inhalte | `data/content.json` |
+| Kreis-Berechnung | `js/modules/menu.js` (passt sich automatisch an Anzahl Themen an) |
+| Animationen | `css/presentation.css` – `transition`/`@keyframes` anpassen |
 
-### Mehr/Weniger Kacheln
-- `data/content.json`: Topics hinzufügen/entfernen
-- `js/modules/menu.js`: Circle-Berechnung passt sich automatisch an
+## Weiterführende Dokumentation
 
-### Animations-Geschwindigkeit
-- `css/presentation.css`: `transition`/`animation` Dauer und `@keyframes` Timing anpassen
-
-## Support
-
-Bei Fragen oder Problemen:
-1. Prüfen Sie Browser-Konsole (F12)
-2. Lesen Sie Kommentare in JavaScript-Modulen
-3. Konsultieren Sie `VISION.md` für Konzept-Details
-4. Konsultieren Sie `README.md` für technische Details
+- `README.md` – Technische Übersicht und Modulstruktur
+- `VISION.md` – Konzept und Designphilosophie
+- `FEATURE_MAP.md` – Feature-Modul-Zuordnung
+- `LAYER_SYSTEM_DOCS.md` – Layer-System Architektur
+- `QUICK_START_LAYERS.md` – Schnelleinstieg Layer-System

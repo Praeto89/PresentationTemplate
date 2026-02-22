@@ -40,17 +40,17 @@ Die kreisförmige Anordnung der Themen-Kacheln:
 - Klare, vorhersehbare Interaktionen
 - Tastaturnavigation bleibt verfügbar für Barrierefreiheit
 
-### 4. Admin-Modus Konzept
+### 4. Edit-Mode Konzept
 
-Der Admin-Modus ermöglicht es:
+Der Edit-Mode (`?mode=edit`) ermöglicht es:
 - Inhalte flexibel anzupassen ohne Code zu ändern
+- Übertitel, Untertitel, Themen-Titel und Slide-Inhalte direkt im Browser zu bearbeiten
 - Die Präsentation während der Entwicklung iterativ zu verbessern
-- Verschiedene Versionen für unterschiedliche Zielgruppen zu erstellen
 
 **Datenpersistenz**: 
-- Lokale JSON-Datei für vollständige Offline-Funktionalität
-- Keine Abhängigkeit von Backend-Servern
-- Einfacher Export/Import für Backup und Versionierung
+- **localStorage** für sofortige Speicherung beim Bearbeiten
+- Optional: `save_server.py` (Port 8001) für permanentes Speichern als HTML-Export
+- `start_edit_mode.bat` startet beide Server automatisch
 
 ## Technische Umsetzung
 
@@ -89,9 +89,9 @@ Zukünftige Verbesserungen könnten umfassen:
 - Integration von interaktiven Diagrammen (D3.js, Chart.js)
 - Einbindung von Video-Inhalten
 - Mehrsprachigkeit (DE/EN Toggle)
-- Exportfunktion als PDF
-- Notizen-Modus für Sprecher
 - Zeitleiste für Präsentationsdauer
+
+> **Bereits umgesetzt:** PDF-Export (`pdf-export.js`), Speaker-Notes (`plugin/notes/`), Layer-System für Schüler-Inhalte (`student-*.js`)
 
 ## Designprinzipien
 
