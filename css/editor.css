@@ -822,13 +822,47 @@ body:not(.edit-mode) .editor-controls {
    ════════════════════════════════════════════════════════════════════════════ */
 
 .editable-field {
-  outline: 2px dashed var(--editor-editable);
+  outline: 2px dashed var(--editor-editable, rgba(52, 152, 219, 0.3));
   outline-offset: 4px;
-  transition: outline var(--anim-duration-fast) ease;
+  cursor: text;
+  transition: outline 200ms ease, background 200ms ease;
+}
+
+.editable-field:hover {
+  outline-color: var(--editor-editable-focus, rgba(52, 152, 219, 0.8));
+  background: rgba(52, 152, 219, 0.05);
 }
 
 .editable-field:focus {
-  outline: 2px solid var(--editor-editable-focus);
+  outline: 2px solid var(--editor-editable-focus, rgba(52, 152, 219, 0.8));
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Ensure editable elements on the overview slide are clickable */
+.edit-mode .overview-title.editable-field,
+.edit-mode .overview-subtitle.editable-field {
+  pointer-events: auto !important;
+  cursor: text !important;
+  position: absolute;
+  z-index: 200;
+}
+
+/* Ensure circle-text is editable */
+.edit-mode .circle-item .circle-text.editable-field {
+  pointer-events: auto !important;
+  cursor: text !important;
+}
+
+/* Make editable elements inside expanded nav-boxes clearly editable */
+.nav-box.expanded .editable-field {
+  outline: 2px dashed var(--editor-editable, rgba(52, 152, 219, 0.3));
+  outline-offset: 4px;
+  cursor: text;
+}
+
+.nav-box.expanded .editable-field:focus {
+  outline: 2px solid var(--editor-editable-focus, rgba(52, 152, 219, 0.8));
+  background: rgba(255, 255, 255, 0.95);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════

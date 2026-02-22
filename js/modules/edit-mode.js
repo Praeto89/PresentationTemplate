@@ -102,7 +102,7 @@ function activateEditMode() {
   });
 
   // ── slide editing ────────────────────────────────────────────────────
-  if (typeof Reveal !== 'undefined' && Reveal.isReady) {
+  if (typeof Reveal !== 'undefined' && Reveal.isReady && Reveal.isReady()) {
     setupSlideEditing();
   } else if (typeof Reveal !== 'undefined' && Reveal.on) {
     Reveal.on('ready', () => setupSlideEditing());

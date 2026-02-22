@@ -38,6 +38,14 @@ export function setupSlideEditing() {
     }
   });
 
+  // Listen for custom event when nav-boxes expand (content cloned into box)
+  document.addEventListener('navbox-expanded', (e) => {
+    const container = e.detail && e.detail.container;
+    if (container) {
+      enableEditingInContainer(container);
+    }
+  });
+
   // Editor hint badge
   const hint = document.createElement('div');
   hint.className = 'editor-hint';
@@ -56,6 +64,9 @@ export function enableInlineEditing() {
   document.querySelectorAll('.overview-subtitle').forEach(makeEditable);
   document.querySelectorAll('.group-intro .group-subtitle').forEach(makeEditable);
 
+  // Make circle titles on the overview editable
+  document.querySelectorAll('.circle-item .circle-text').forEach(makeEditable);
+
   document.querySelectorAll('.detail-slide').forEach((slide) => {
     const title = slide.querySelector(
       ':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6',
@@ -71,9 +82,31 @@ export function enableInlineEditing() {
     });
   });
 
-  document.querySelectorAll('.nav-box h4, .nav-box p').forEach(makeEditable);
+  // Also make nav-box titles editable (created after syncDetailToNavBox)
+  document.querySelectorAll('.nav-box h4, .nav-box p, .nav-box .box-title').forEach(makeEditable);
+
+  // Make elements inside expanded nav-boxes editable
+  document.querySelectorAll('.nav-box.expanded h3, .nav-box.expanded h5, .nav-box.expanded p').forEach(makeEditable);
+
+  // Make closing-slide content editable
+  document.querySelectorAll('.closing-slide h2, .closing-slide p').forEach(makeEditable);
 
   console.log('[SlideEditor] Inline editing enabled');
+}
+
+/**
+ * Enable editing on all text elements inside a container.
+ * Used after expanding nav-boxes to make cloned content editable.
+ */
+export function enableEditingInContainer(container) {
+  if (!container) return;
+  container.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(makeEditable);
+  container.querySelectorAll('p').forEach(makeEditable);
+  container.querySelectorAll('div').forEach((div) => {
+    if (div.querySelector('button')) return;
+    if (!div.textContent || !div.textContent.trim()) return;
+    makeEditable(div);
+  });
 }
 
 /**
@@ -128,21 +161,64 @@ function makeEditable(element) {
   element.contentEditable = 'true';
   element.classList.add('editable-field');
 
+  // Disable Reveal.js keyboard when editing so typed characters
+  // are not swallowed as navigation shortcuts (f, s, o, b …)
+  element.addEventListener('focus', () => {
+    if (typeof Reveal !== 'undefined') {
+      Reveal.configure({ keyboard: false });
+    }
+  });
+
   element.addEventListener('blur', () => {
+    // Re-enable Reveal.js keyboard
+    if (typeof Reveal !== 'undefined') {
+      Reveal.configure({ keyboard: true });
+    }
     saveElementContent(element);
   });
 
   element.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey && element.tagName !== 'P') {
+    // Escape → leave editing
+    if (e.key === 'Escape') {
       e.preventDefault();
       element.blur();
+      return;
     }
+    // Enter (without Shift) on non-paragraph elements → leave editing
+    if (e.key === 'Enter' && !e.shiftKey && element.tagName !== 'P' && element.tagName !== 'DIV') {
+      e.preventDefault();
+      element.blur();
+      return;
+    }
+    // Stop ALL key events from bubbling to Reveal.js while editing
+    e.stopPropagation();
   });
+
+  // Also stop keyup / keypress to be safe
+  element.addEventListener('keyup', (e) => e.stopPropagation());
+  element.addEventListener('keypress', (e) => e.stopPropagation());
 }
 
 function saveElementContent(element) {
   const content = element.innerHTML;
-  const identifier = getElementIdentifier(element);
+
+  // Check if the element is inside an expanded nav-box (clone)
+  const expandedBox = element.closest('.nav-box.expanded');
+  let identifier;
+
+  if (expandedBox) {
+    // Element is a clone inside expanded nav-box — resolve via original slide
+    const targetH = parseInt(expandedBox.dataset.targetH, 10);
+    const targetV = parseInt(expandedBox.dataset.targetV, 10);
+    if (typeof Reveal !== 'undefined') {
+      const originalSlide = Reveal.getSlide(targetH, targetV);
+      if (originalSlide) {
+        identifier = getIdentifierRelativeToSlide(element, originalSlide, expandedBox);
+      }
+    }
+  } else {
+    identifier = getElementIdentifier(element);
+  }
 
   if (!identifier) return;
 
@@ -153,7 +229,39 @@ function saveElementContent(element) {
   console.log(`[SlideEditor] Saved: ${identifier}`);
 
   syncDetailToNavBox(element);
-  showNotification('Changes saved!', 'success');
+  showNotification('Änderungen gespeichert!', 'success');
+}
+
+/**
+ * Build an identifier for a cloned element by matching its position
+ * relative to the original slide rather than the clone container.
+ */
+function getIdentifierRelativeToSlide(clonedElement, originalSlide, expandedBox) {
+  const allSlides = document.querySelectorAll('.reveal .slides section');
+  const slideIndex = Array.from(allSlides).indexOf(originalSlide);
+  if (slideIndex < 0) return null;
+
+  const tagName = clonedElement.tagName.toLowerCase();
+
+  // Find the position of the cloned element among siblings of the same
+  // tag inside the expanded-content clone (which mirrors the original slide).
+  const cloneRoot = expandedBox.querySelector('.expanded-content') || expandedBox;
+  const cloneSiblings = cloneRoot.querySelectorAll(tagName);
+  const cloneIndex = Array.from(cloneSiblings).indexOf(clonedElement);
+
+  // Match position in original slide
+  const origSiblings = originalSlide.querySelectorAll(tagName);
+  const origElement = origSiblings[cloneIndex];
+  if (!origElement) return null;
+
+  // Also update the original slide element in place
+  origElement.innerHTML = clonedElement.innerHTML;
+
+  const className = origElement.className.replace(/\s+/g, '_');
+  const classSiblings = originalSlide.querySelectorAll(tagName + '.' + origElement.className.split(' ')[0]);
+  const elementIndex = Array.from(classSiblings).indexOf(origElement);
+
+  return `slide_${slideIndex}_${tagName}_${className}_${elementIndex}`;
 }
 
 function syncDetailToNavBox(element) {

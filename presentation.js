@@ -570,6 +570,9 @@ function expandBox(box, overlay) {
   // Store original content
   box.dataset.originalContent = box.innerHTML;
   
+  // Store reference to original slide for syncing changes back
+  box._originalSlide = targetSlide;
+  
   // Replace box content with slide content
   box.innerHTML = '';
   box.appendChild(content);
@@ -590,21 +593,62 @@ function expandBox(box, overlay) {
     overlay.classList.add('active');
     box.classList.add('expanded');
     console.log('[expandBox] Box expanded');
+    
+    // If in edit mode, notify slide-editor to make cloned content editable
+    if (document.body.classList.contains('edit-mode')) {
+      document.dispatchEvent(new CustomEvent('navbox-expanded', {
+        detail: { container: content, targetH, targetV }
+      }));
+    }
   }, 10);
 }
 
 function collapseBox(box, overlay) {
+  // If in edit mode, sync changes from cloned content back to original slide
+  if (document.body.classList.contains('edit-mode') && box._originalSlide) {
+    const expandedContent = box.querySelector('.expanded-content');
+    if (expandedContent) {
+      syncExpandedToOriginal(expandedContent, box._originalSlide);
+    }
+  }
+  
   box.classList.remove('expanded');
   overlay.classList.remove('active');
   
   setTimeout(() => {
     overlay.style.display = 'none';
-    // Restore original content
+    // Restore original nav-box summary content
     if (box.dataset.originalContent) {
       box.innerHTML = box.dataset.originalContent;
       delete box.dataset.originalContent;
     }
+    delete box._originalSlide;
   }, 300);
+}
+
+/**
+ * Sync text edits from expanded (cloned) content back to the original detail slide.
+ */
+function syncExpandedToOriginal(cloneSection, originalSlide) {
+  try {
+    // Sync headings
+    const cloneHeadings = cloneSection.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    const origHeadings = originalSlide.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    cloneHeadings.forEach((ch, i) => {
+      if (origHeadings[i]) origHeadings[i].innerHTML = ch.innerHTML;
+    });
+
+    // Sync paragraphs
+    const clonePs = Array.from(cloneSection.children).filter(n => n.tagName === 'P');
+    const origPs = Array.from(originalSlide.children).filter(n => n.tagName === 'P');
+    clonePs.forEach((cp, i) => {
+      if (origPs[i]) origPs[i].innerHTML = cp.innerHTML;
+    });
+
+    console.log('[collapseBox] Synced expanded edits back to original slide');
+  } catch (err) {
+    console.warn('[collapseBox] Error syncing expanded content:', err);
+  }
 }
 
 async function showCircleHoverImages(circle) {
@@ -691,7 +735,11 @@ function setupCircleNavigation() {
     circle.style.setProperty('--angle', angle + 'deg');
     circle.style.setProperty('--radius', outerRadius + 'px');
 
-    circle.addEventListener('click', () => {
+    circle.addEventListener('click', (e) => {
+      // In edit mode, don't navigate when clicking on editable circle text
+      if (document.body.classList.contains('edit-mode') && e.target.classList.contains('editable-field')) {
+        return;
+      }
       const slideIndex = parseInt(circle.dataset.slide, 10);
       if (!isNaN(slideIndex)) {
         Reveal.slide(slideIndex, 0); // Navigate to group-intro (v=0) - die Hauptslide
