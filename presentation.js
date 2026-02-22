@@ -3,17 +3,17 @@
 // Reveal.js als Slide-Engine, kein Zoom, keine Plugins
 // ════════════════════════════════════════════════════════════════════════════
 
-import { initEditor } from './editor.js';
-import { initEditMode } from '../js/modules/edit-mode.js';
-import { initStudentManager } from '../js/modules/student-manager.js';
-import { loadContent } from '../js/modules/storage.js';
+import { initEditMode } from './js/modules/edit-mode.js';
+import { isOverlayVisible } from './js/modules/overlay.js';
+import { initStudentManager, getAllStudents, isLayerModeEnabled, getCurrentStudent } from './js/modules/student-manager.js';
+import { loadContent, registerStorageCallbacks } from './js/modules/storage.js';
+import { setContentData, initMenu } from './js/modules/menu.js';
 import {
   initStudentLayerController,
   toggleStudentDropdownVisibility,
   updateStudentDropdown,
   reloadPresentationForStudent,
-} from '../js/modules/student-layer-controller.js';
-import { getAllStudents, isLayerModeEnabled, getCurrentStudent } from '../js/modules/student-manager.js';
+} from './js/modules/student-layer-controller.js';
 
 async function init() {
   // Initialize Student Manager (loads saved students from localStorage)
@@ -111,9 +111,13 @@ async function init() {
     }
   });
   
-  // ESC returns to overview
+  // ESC returns to overview (but not when overlay or input is active)
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      if (isOverlayVisible()) return;
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (document.activeElement?.isContentEditable) return;
       Reveal.slide(0);
     }
   });
@@ -121,6 +125,12 @@ async function init() {
   // Custom arrow key navigation
   registerCustomNavigationControls();
   
+  // Wire storage → menu callbacks (breaks circular dependency)
+  registerStorageCallbacks({
+    onContentChanged: (data) => setContentData(data),
+    onContentImported: () => initMenu(),
+  });
+
   // Load content data (needed for admin UI, student layers, etc.)
   await loadContent();
 
@@ -142,8 +152,7 @@ async function init() {
     console.warn('[Presentation] Student layer controller error:', error);
   }
 
-  // Initialize editor if in edit mode
-  initEditor();
+  // Initialize edit mode (inline editing, Ctrl+S export, admin panel)
   initEditMode();
   
   // Apply global background image if provided via URL or data attribute
@@ -210,7 +219,7 @@ async function tryAutoBackgroundFromFolder(revealEl) {
     const res = await fetch('assets/background/');
     if (!res.ok) return;
     const html = await res.text();
-    const matches = Array.from(html.matchAll(/href=\"([^\"]+)\"/g))
+    const matches = Array.from(html.matchAll(/href="([^"]+)"/g))
       .map(m => m[1])
       .filter(href => /\.(jpg|jpeg|png|webp)$/i.test(href));
 
@@ -230,7 +239,7 @@ async function findFirstImageInDirectory() {
     const res = await fetch('assets/background/');
     if (!res.ok) return null;
     const html = await res.text();
-    const matches = Array.from(html.matchAll(/href=\"([^\"]+)\"/g))
+    const matches = Array.from(html.matchAll(/href="([^"]+)"/g))
       .map(m => m[1])
       .filter(href => /\.(jpg|jpeg|png|webp)$/i.test(href));
     if (matches.length === 0) return null;
@@ -359,6 +368,12 @@ function registerCustomNavigationControls() {
     
     if (!arrowKeys.includes(e.key)) return;
     if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+    // Don't intercept arrows when user is in a form field or overlay
+    const tag = document.activeElement?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (document.activeElement?.isContentEditable) return;
+    if (isOverlayVisible()) return;
     
     console.log('[Navigation] Arrow key pressed:', e.key);
     

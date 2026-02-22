@@ -69,8 +69,8 @@ export function computeLayout(viewportW, viewportH, tileCount) {
     // ASPECT RATIO STRETCH
     // Rein kreisförmige Anordnung (kein Stretch)
     // ===================================
-    let aspectStretchX = 1;
-    let aspectStretchY = 1;
+    const aspectStretchX = 1;
+    const aspectStretchY = 1;
     
     // ===================================
     // FONT SIZES - Fluid Typography

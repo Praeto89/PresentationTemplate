@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "description": "Interactive Reveal.js presentation for master thesis with custom animations and admin mode",
   "main": "index.html",
+  "type": "module",
   "scripts": {
-    "postinstall": "node -e \"require('fs').cpSync('node_modules/reveal.js/dist', 'dist', {recursive: true}); require('fs').cpSync('node_modules/reveal.js/plugin', 'plugin', {recursive: true});\""
+    "postinstall": "node -e \"require('fs').cpSync('node_modules/reveal.js/dist', 'dist', {recursive: true}); require('fs').cpSync('node_modules/reveal.js/plugin', 'plugin', {recursive: true});\"",
+    "lint": "eslint src/ js/",
+    "lint:fix": "eslint src/ js/ --fix",
+    "format": "prettier --write \"src/**/*.js\" \"js/**/*.js\" \"css/**/*.css\" \"styles/**/*.css\"",
+    "format:check": "prettier --check \"src/**/*.js\" \"js/**/*.js\" \"css/**/*.css\" \"styles/**/*.css\""
   },
   "keywords": [
     "reveal.js",
@@ -16,5 +21,11 @@
   "license": "MIT",
   "dependencies": {
     "reveal.js": "^5.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.2.0"
   }
 }

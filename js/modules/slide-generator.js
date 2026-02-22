@@ -7,6 +7,7 @@
 
 import { getCurrentStudent } from './student-manager.js';
 import { getContentData } from './storage.js';
+import { STORAGE } from '../config/index.js';
 
 /**
  * Generiert alle Overview-Kreise basierend auf Topics aus content.json
@@ -168,7 +169,7 @@ export function generateCompleteSlidesHTML(circleCount, title, subtitle, author)
     return '';
   }
   
-  let html = `
+  const html = `
       <!-- Slide 0 | Übersicht -->
       <section id="overview" class="overview-slide">
         <div class="spiral-container">
@@ -204,8 +205,8 @@ export function saveGenerationMetadata(circleCount, metadata) {
     metadata
   };
   
-  localStorage.setItem('slide-generation-metadata', JSON.stringify(data));
-  localStorage.setItem('overview-circle-count', circleCount.toString());
+  localStorage.setItem(STORAGE.generationMetadata, JSON.stringify(data));
+  localStorage.setItem(STORAGE.circleCount, circleCount.toString());
   console.log('[SlideGenerator] Saved generation metadata:', data);
 }
 
@@ -214,7 +215,7 @@ export function saveGenerationMetadata(circleCount, metadata) {
  * @returns {Object|null} Metadaten oder null
  */
 export function loadGenerationMetadata() {
-  const data = localStorage.getItem('slide-generation-metadata');
+  const data = localStorage.getItem(STORAGE.generationMetadata);
   if (data) {
     console.log('[SlideGenerator] Loaded generation metadata');
     return JSON.parse(data);

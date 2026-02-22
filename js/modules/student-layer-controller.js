@@ -21,12 +21,12 @@ import {
   saveStudentBookmarks,
   getBookmarks,
   saveIndexHTML,
+  getContentData,
 } from './storage.js';
 import {
   generateCompleteSlidesHTML,
   saveGenerationMetadata,
 } from './slide-generator.js';
-import { getContentData } from './storage.js';
 
 /**
  * Initialisiert Student-Layer-Controller
@@ -78,37 +78,15 @@ function createStudentDropdownElement() {
   
   const wrapper = document.createElement('div');
   wrapper.id = 'student-selector-wrapper';
-  wrapper.style.cssText = `
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    z-index: 9990;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 8px 14px;
-    border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: system-ui, -apple-system, sans-serif;
-  `;
+  wrapper.className = 'student-selector-wrapper';
   
   const label = document.createElement('label');
   label.htmlFor = 'student-selector';
   label.textContent = '👤 Schüler:';
-  label.style.cssText = 'font-size: 13px; font-weight: 600; color: #444; white-space: nowrap;';
+  label.className = 'student-selector-label';
   
   const select = document.createElement('select');
   select.id = 'student-selector';
-  select.style.cssText = `
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 13px;
-    background: white;
-    cursor: pointer;
-    min-width: 140px;
-  `;
   
   wrapper.appendChild(label);
   wrapper.appendChild(select);

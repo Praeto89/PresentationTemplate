@@ -739,3 +739,360 @@ body:not(.edit-mode) .editor-controls {
 .admin-btn-danger:active {
   transform: translateY(0);
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   ADMIN CHILD EDITOR (subtopic list)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.admin-child-list {
+  margin-bottom: var(--spacing-md);
+}
+
+.admin-child-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  margin-bottom: 4px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--radius-base);
+  transition: background var(--anim-duration-fast) ease;
+}
+
+.admin-child-row.drag-over {
+  background: #e3f2fd;
+  border-color: #2196F3;
+}
+
+.admin-drag-handle {
+  cursor: grab;
+  color: #999;
+  user-select: none;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.admin-child-row input[type="text"] {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.admin-remove-child {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 12px;
+  transition: background var(--anim-duration-fast) ease;
+}
+
+.admin-remove-child:hover {
+  background: #d32f2f;
+}
+
+.admin-btn-add {
+  background: var(--editor-accent);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background var(--anim-duration-fast) ease;
+}
+
+.admin-btn-add:hover {
+  background: var(--presentation-accent-hover);
+}
+
+.admin-btn-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   EDITABLE FIELDS (inline editing on slides)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.editable-field {
+  outline: 2px dashed var(--editor-editable);
+  outline-offset: 4px;
+  transition: outline var(--anim-duration-fast) ease;
+}
+
+.editable-field:focus {
+  outline: 2px solid var(--editor-editable-focus);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   EDITOR HINT BADGE (bottom-right corner)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.editor-hint {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(52, 152, 219, 0.9);
+  color: white;
+  padding: 10px 20px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 9998;
+  box-shadow: var(--shadow-md);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FLOATING ACTION BUTTONS (edit-mode only)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.floating-action-btn {
+  position: fixed;
+  right: 20px;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 9998;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: all var(--anim-duration-normal) ease;
+}
+
+.floating-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+.floating-action-btn--circles {
+  bottom: 100px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.floating-action-btn--students {
+  bottom: 50px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   GENERIC MODAL SYSTEM (circle settings, PDF guide, etc.)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--overlay-background);
+  z-index: 99998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: var(--overlay-foreground);
+  border-radius: var(--radius-xl);
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: var(--shadow-xl);
+  animation: slideIn 0.3s ease;
+}
+
+.modal-content--wide {
+  max-width: 700px;
+  padding: 0;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  margin-top: 0;
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 4px 8px;
+  border-radius: var(--radius-base);
+  transition: background var(--anim-duration-fast) ease;
+}
+
+.modal-close-btn:hover {
+  background: #eee;
+}
+
+/* Modal button variants */
+.modal-btn {
+  width: 100%;
+  padding: 12px;
+  color: white;
+  border: none;
+  border-radius: var(--radius-base);
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all var(--anim-duration-normal) ease;
+  margin-bottom: 10px;
+}
+
+.modal-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.modal-btn--generate {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.modal-btn--refresh {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.modal-btn--close {
+  background: #ddd;
+  color: #333;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   STUDENT SELECTOR DROPDOWN (fixed top-left)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.student-selector-wrapper {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 9990;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px 14px;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.student-selector-wrapper.is-hidden {
+  display: none;
+}
+
+.student-selector-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  white-space: nowrap;
+}
+
+#student-dropdown {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 13px;
+  background: white;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   PDF EXPORT GUIDE STYLES
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.pdf-guide-body {
+  padding: 20px;
+  max-width: 600px;
+}
+
+.info-card {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.info-card--warning {
+  background: #fff3cd;
+  border-left: 4px solid var(--color-warning);
+}
+
+.info-card--info {
+  background: #e3f2fd;
+  border-left: 4px solid var(--color-info);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   CIRCLE TITLE EDITOR (admin panel)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.circle-title-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.circle-title-label {
+  min-width: 28px;
+  font-weight: bold;
+  color: #555;
+}
+
+.circle-title-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FORM HINTS & SPACING UTILITIES
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.form-hint-block {
+  display: block;
+  margin-top: 5px;
+  color: #666;
+  font-size: var(--font-size-sm);
+}
+
+.text-muted {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.mt-sm  { margin-top: var(--spacing-sm); }
+.mt-md  { margin-top: var(--spacing-md); }
+.mt-lg  { margin-top: var(--spacing-lg); }
+.mt-xl  { margin-top: var(--spacing-xl); }
+.ml-md  { margin-left: var(--spacing-md); }
+.ml-lg  { margin-left: var(--spacing-lg); }
+.mb-md  { margin-bottom: var(--spacing-md); }
+.mb-lg  { margin-bottom: var(--spacing-lg); }

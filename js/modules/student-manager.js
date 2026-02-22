@@ -5,11 +5,13 @@
  * ════════════════════════════════════════════════════════════════════════════
  */
 
+import { STORAGE } from '../config/index.js';
+
 const STORAGE_KEYS = {
-  LAYER_MODE_ENABLED: 'layerModeEnabled',
-  LAYER_COUNT: 'layerCount',
-  STUDENT_CONFIGS: 'studentConfigs',
-  CURRENT_STUDENT: 'currentStudent',
+  LAYER_MODE_ENABLED: STORAGE.layerModeEnabled,
+  LAYER_COUNT: STORAGE.layerCount,
+  STUDENT_CONFIGS: STORAGE.studentConfigs,
+  CURRENT_STUDENT: STORAGE.currentStudent,
 };
 
 let studentConfigs = [];

@@ -72,13 +72,24 @@ export const LAYOUT = {
 };
 
 // ==========================
-// 6. STORAGE KEYS
+// 6. STORAGE KEYS  (single source of truth for all localStorage key names)
 // ==========================
 export const STORAGE = {
+  // Content & editing
   slideEdits: 'slideEdits',
   bookmarks: 'thesis-presentation-bookmarks',
   contentData: 'contentData',
   speakerLayout: 'reveal-speaker-layout',
+
+  // Slide generation
+  generationMetadata: 'slide-generation-metadata',
+  circleCount: 'overview-circle-count',
+
+  // Student / layer system
+  layerModeEnabled: 'layerModeEnabled',
+  layerCount: 'layerCount',
+  studentConfigs: 'studentConfigs',
+  currentStudent: 'currentStudent',
 };
 
 // ==========================

@@ -4,11 +4,25 @@
  * Verwendet File System Access API mit Fallback zu Download/Upload
  */
 
-import { setContentData, initMenu } from './menu.js';
 import { getCurrentStudent, getCurrentStudentIndex, saveStudentState, loadStudentState } from './student-manager.js';
+import { STORAGE } from '../config/index.js';
 
 let currentFileHandle = null;
 let contentData = null;
+
+// ── Callback registry (breaks circular dep with menu.js) ──────────────
+let _onContentChanged = null; // called when contentData is replaced
+let _onContentImported = null; // called after JSON import (needs menu re-init)
+
+/**
+ * Register callbacks that storage fires on content changes.
+ * Called once during bootstrap (presentation.js / app.js).
+ * @param {{ onContentChanged?: (data: object) => void, onContentImported?: () => void }} cbs
+ */
+export function registerStorageCallbacks({ onContentChanged, onContentImported } = {}) {
+  if (onContentChanged) _onContentChanged = onContentChanged;
+  if (onContentImported) _onContentImported = onContentImported;
+}
 
 /**
  * Prüft, ob File System Access API verfügbar ist
@@ -37,8 +51,8 @@ export async function loadContent() {
         // Aktualisiere HTML mit geladenen Daten
         updateHTMLContent(contentData);
         
-        // Setze Content-Daten für Menü-Modul
-        setContentData(contentData);
+        // Notify menu module of new content
+        if (_onContentChanged) _onContentChanged(contentData);
         
         console.log('Content loaded successfully', contentData);
         return contentData;
@@ -49,7 +63,7 @@ export async function loadContent() {
         // Fallback zu Standardwerten aus HTML
         contentData = extractContentFromHTML();
         window.contentData = contentData;
-        setContentData(contentData);
+        if (_onContentChanged) _onContentChanged(contentData);
         return contentData;
     }
 }
@@ -279,9 +293,9 @@ async function importWithFileSystemAPI() {
         
         // Aktualisiere Content-Daten
         contentData = data;
-        setContentData(data);
+        if (_onContentChanged) _onContentChanged(data);
         updateHTMLContent(data);
-        initMenu(); // Re-initialisiere Menü
+        if (_onContentImported) _onContentImported();
         
         console.log('Content imported successfully', data);
         alert('Inhalt erfolgreich importiert!');
@@ -317,9 +331,9 @@ export function handleFileInputChange(event) {
         try {
             const data = JSON.parse(e.target.result);
             contentData = data;
-            setContentData(data);
+            if (_onContentChanged) _onContentChanged(data);
             updateHTMLContent(data);
-            initMenu();
+            if (_onContentImported) _onContentImported();
             
             console.log('Content imported via file input', data);
             alert('Inhalt erfolgreich importiert!');
@@ -347,7 +361,7 @@ export function getContentData() {
 export function updateContentData(newData) {
     contentData = newData;
     window.contentData = newData;
-    setContentData(newData);
+    if (_onContentChanged) _onContentChanged(newData);
 }
 
 /**
@@ -358,7 +372,7 @@ export function updateContentData(newData) {
  * ===================================
  */
 
-const SLIDE_EDITS_STORAGE_KEY = 'slideEdits';
+const SLIDE_EDITS_STORAGE_KEY = STORAGE.slideEdits;
 
 /**
  * Lädt gespeicherte Slide-Edits aus localStorage
@@ -424,7 +438,7 @@ export function clearAllSlideEdits() {
  * ===================================
  */
 
-const BOOKMARKS_STORAGE_KEY = 'thesis-presentation-bookmarks';
+const BOOKMARKS_STORAGE_KEY = STORAGE.bookmarks;
 
 /**
  * Lädt alle Bookmarks aus localStorage

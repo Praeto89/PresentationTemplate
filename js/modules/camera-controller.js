@@ -245,7 +245,7 @@ class CameraController {
      */
     runCameraAnimation({ from, to, duration, onUpdate, onComplete }) {
         const startTime = performance.now();
-        let lastFrameTime = startTime;
+        const lastFrameTime = startTime;
 
         const animationLoop = (currentTime) => {
             const elapsed = currentTime - startTime;

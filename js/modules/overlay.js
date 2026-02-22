@@ -58,6 +58,14 @@ function getOrCreateOverlay() {
       hideOverlay();
     }
   });
+
+  // Prevent keyboard events inside the overlay from reaching Reveal.js
+  overlayElement.addEventListener('keydown', (e) => {
+    // Allow Ctrl+S (export shortcut) to pass through
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') return;
+    // Block everything else from bubbling to Reveal / custom handlers
+    e.stopPropagation();
+  });
   
   return overlayElement;
 }

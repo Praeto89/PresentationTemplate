@@ -101,48 +101,17 @@ function showModal(title, content) {
   // Erstelle Modal
   const modal = document.createElement('div');
   modal.id = 'pdf-export-modal';
-  modal.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-  `;
+  modal.className = 'modal-backdrop';
   
   const modalContent = document.createElement('div');
-  modalContent.style.cssText = `
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    max-height: 90vh;
-    overflow-y: auto;
-    max-width: 700px;
-    width: 90%;
-  `;
+  modalContent.className = 'modal-content modal-content--wide';
   
   // Header
   const header = document.createElement('div');
-  header.style.cssText = `
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  `;
+  header.className = 'modal-header';
   header.innerHTML = `
-    <h2 style="margin: 0; font-size: 20px;">${title}</h2>
-    <button id="modal-close-btn" style="
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #999;
-    ">×</button>
+    <h2 class="modal-title" style="margin: 0; font-size: 20px;">${title}</h2>
+    <button id="modal-close-btn" class="modal-close-btn">×</button>
   `;
   
   // Body
