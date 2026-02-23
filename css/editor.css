@@ -2,14 +2,110 @@
    EDITOR STYLES - Web-based Slide Content Editor
    ════════════════════════════════════════════════════════════════════════════ */
 
-/* Hide all admin/circle buttons by default (when NOT in edit mode) */
+/* ════════════════════════════════════════════════════════════════════════════
+   EDIT-MODE TOGGLE SWITCH (bottom-right corner, always visible)
+   A checkbox-style toggle that switches between Presentation ↔ Edit mode.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.edit-mode-switch {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.edit-mode-switch:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22);
+}
+
+/* Hidden native checkbox */
+.edit-mode-switch input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The toggle track */
+.edit-switch-track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #ccc;
+  border-radius: 12px;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+
+/* The toggle knob */
+.edit-switch-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease;
+}
+
+/* Checked (edit mode ON) */
+.edit-mode-switch input:checked + .edit-switch-track {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.edit-mode-switch input:checked + .edit-switch-track::after {
+  transform: translateX(20px);
+}
+
+/* Label text */
+.edit-switch-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+.edit-mode-switch input:checked ~ .edit-switch-label {
+  color: #667eea;
+}
+
+/* Responsive: smaller on mobile */
+@media (max-width: 600px) {
+  .edit-mode-switch {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .edit-switch-label {
+    display: none;
+  }
+}
+
+/* Hide all admin/circle/action buttons by default (only visible in edit mode) */
 .admin-panel-toggle-btn,
-.circle-settings-btn {
+.circle-settings-btn,
+.floating-action-btn {
   display: none !important;
 }
 
-/* Only show in edit mode */
-.edit-mode .circle-settings-btn-edit-mode {
+/* Show them when edit mode is active */
+.edit-mode .circle-settings-btn-edit-mode,
+.edit-mode .floating-action-btn {
   display: block !important;
 }
 
@@ -908,12 +1004,12 @@ body:not(.edit-mode) .editor-controls {
 }
 
 .floating-action-btn--circles {
-  bottom: 100px;
+  bottom: 140px;
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
 .floating-action-btn--students {
-  bottom: 50px;
+  bottom: 80px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 

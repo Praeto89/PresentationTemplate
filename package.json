@@ -5,6 +5,7 @@
   "main": "index.html",
   "type": "module",
   "scripts": {
+    "start": "python server.py",
     "postinstall": "node -e \"require('fs').cpSync('node_modules/reveal.js/dist', 'dist', {recursive: true}); require('fs').cpSync('node_modules/reveal.js/plugin', 'plugin', {recursive: true});\"",
     "lint": "eslint src/ js/",
     "lint:fix": "eslint src/ js/ --fix",

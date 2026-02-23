@@ -18,10 +18,10 @@ export function exportHTML() {
 
   // Remove editor-injected elements
   clone
-    .querySelectorAll('.editor-controls, .edit-slide-btn, .editor-modal, .editor-hint')
+    .querySelectorAll('.editor-controls, .edit-slide-btn, .editor-modal, .editor-hint, .floating-edit-toggle, .edit-mode-switch, .floating-action-btn')
     .forEach((el) => el.remove());
   clone
-    .querySelectorAll('.notification-toast, .nav-box-overlay')
+    .querySelectorAll('.notification-toast, .nav-box-overlay, .student-selector-wrapper')
     .forEach((el) => el.remove());
 
   // Strip contentEditable attributes
@@ -43,19 +43,25 @@ export function exportHTML() {
 
   const htmlContent = '<!DOCTYPE html>\n' + clone.outerHTML;
 
-  fetch('http://localhost:8001/save', {
+  fetch('/save', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ html: htmlContent }),
   })
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    })
     .then((data) => {
       console.log('[ExportHTML] Server response:', data);
-      showNotification('✅ Saved to index.html! Reload to see changes.', 'success');
+      showNotification('✅ Gespeichert! Seite neu laden um Änderungen zu sehen.', 'success');
     })
     .catch((error) => {
       console.error('[ExportHTML] Save error:', error);
-      showNotification('❌ Save failed! Is save_server.py running?', 'error');
+      showNotification(
+        '❌ Speichern fehlgeschlagen! Wurde server.py gestartet?',
+        'error',
+      );
     });
 }
 

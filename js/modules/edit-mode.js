@@ -7,7 +7,8 @@
  *   admin-panel.js    – menu admin, circle titles, slide generation
  *   student-ui.js     – student / layer-mode management UI
  *
- * Activated by ?mode=edit URL parameter or Ctrl+E shortcut.
+ * Activated by ?mode=edit URL parameter, Ctrl+E shortcut,
+ * or the floating ✏️ button (always visible in presentation).
  * ════════════════════════════════════════════════════════════════════════════
  */
 
@@ -23,20 +24,26 @@ import {
   collectAdminChanges,
 } from './admin-panel.js';
 import { setupStudentManagerUI } from './student-ui.js';
+import { showNotification } from './utils/notification.js';
 
 /* ── module state ───────────────────────────────────────────────────────── */
 
 let editModeActive = false;
+let floatingBtn = null;
+let saveServerAvailable = false;
 
 /* ── public API ─────────────────────────────────────────────────────────── */
 
 /**
  * Initialise Edit Mode if ?mode=edit is in URL.
- * Also registers the Ctrl+E keyboard shortcut.
+ * Also registers the Ctrl+E keyboard shortcut and creates the floating button.
  */
 export function initEditMode() {
   const urlParams = new URLSearchParams(window.location.search);
   const mode = urlParams.get('mode');
+
+  // Create the floating edit toggle (always visible)
+  createFloatingEditButton();
 
   // Support legacy ?mode=admin redirect
   if (mode === 'edit' || mode === 'admin') {
@@ -49,6 +56,9 @@ export function initEditMode() {
       toggleEditMode();
     }
   });
+
+  // Probe the save endpoint in the background
+  checkSaveServer();
 
   console.log('[EditMode] Module initialized');
 }
@@ -84,6 +94,21 @@ function activateEditMode() {
   editModeActive = true;
   console.log('[EditMode] Edit mode activated');
   document.body.classList.add('edit-mode');
+
+  // Warn if save server is not reachable
+  if (!saveServerAvailable) {
+    checkSaveServer().then(() => {
+      if (!saveServerAvailable) {
+        showNotification(
+          '⚠️ Speichern nicht verfügbar – bitte mit python server.py starten.',
+          'warning',
+        );
+      }
+    });
+  }
+
+  // Update floating button state
+  updateFloatingButton();
 
   // ── slide editing ────────────────────────────────────────────────────
   if (typeof Reveal !== 'undefined' && Reveal.isReady && Reveal.isReady()) {
@@ -133,7 +158,83 @@ function deactivateEditMode() {
   hideOverlay();
   collectAdminChanges();
 
+  // Update floating button state
+  updateFloatingButton();
+
   console.log('[EditMode] All features deactivated');
 }
 
+/* ── edit-mode toggle switch ─────────────────────────────────────────────── */
 
+/**
+ * Create a persistent checkbox-style toggle switch that lets users
+ * switch between Presentation mode and Edit mode.
+ */
+function createFloatingEditButton() {
+  if (floatingBtn) return;
+
+  floatingBtn = document.createElement('label');
+  floatingBtn.className = 'edit-mode-switch';
+  floatingBtn.setAttribute('title', 'Edit-Mode umschalten (Ctrl+E)');
+  floatingBtn.innerHTML = `
+    <input type="checkbox" id="edit-mode-checkbox">
+    <span class="edit-switch-track"></span>
+    <span class="edit-switch-label">Edit-Mode</span>
+  `;
+
+  const checkbox = floatingBtn.querySelector('#edit-mode-checkbox');
+  checkbox.addEventListener('change', (e) => {
+    e.stopPropagation();
+    toggleEditMode();
+  });
+
+  // Prevent Reveal.js from intercepting clicks
+  floatingBtn.addEventListener('click', (e) => e.stopPropagation());
+
+  document.body.appendChild(floatingBtn);
+  updateFloatingButton();
+}
+
+/**
+ * Sync checkbox state with current edit mode.
+ */
+function updateFloatingButton() {
+  if (!floatingBtn) return;
+
+  const checkbox = floatingBtn.querySelector('#edit-mode-checkbox');
+  if (checkbox) {
+    checkbox.checked = editModeActive;
+  }
+}
+
+/* ── save-server health check ───────────────────────────────────────────── */
+
+/**
+ * Probe the /health endpoint to check whether saving is available.
+ * Shows a one-time warning if the save endpoint is unreachable.
+ */
+async function checkSaveServer() {
+  try {
+    const res = await fetch('/health', { method: 'GET' });
+    if (res.ok) {
+      const data = await res.json();
+      saveServerAvailable = data.saveEnabled === true;
+      console.log('[EditMode] Save server available:', saveServerAvailable);
+    } else {
+      saveServerAvailable = false;
+    }
+  } catch {
+    saveServerAvailable = false;
+    console.warn(
+      '[EditMode] Save endpoint not reachable. ' +
+      'Starte den Server mit: python server.py',
+    );
+  }
+}
+
+/**
+ * Returns whether the save server has been detected as available.
+ */
+export function isSaveServerAvailable() {
+  return saveServerAvailable;
+}
