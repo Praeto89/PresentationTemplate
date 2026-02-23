@@ -217,6 +217,48 @@ export async function saveIndexHTML() {
 }
 
 /**
+ * Speichert contentData serverseitig in data/content.json
+ * @param {Object} [data] - Optional explizite Content-Daten
+ */
+export async function saveContentToServer(data = contentData) {
+    try {
+        if (!data) {
+            throw new Error('No content data to save');
+        }
+
+        let response = await fetch('/save-content', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ content: data })
+        });
+
+        // Fallback for legacy split-server setup (save_server.py on 8001)
+        if (!response.ok && response.status === 404) {
+            response = await fetch('http://localhost:8001/save-content', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: data })
+            });
+        }
+
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('[Storage] Content JSON saved to server:', result);
+        return true;
+    } catch (error) {
+        console.error('[Storage] Error saving content JSON to server:', error);
+        return false;
+    }
+}
+
+/**
  * Speichert Datei mit File System Access API
  * @param {string} content - JSON-String zum Speichern
  */

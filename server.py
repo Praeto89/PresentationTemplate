@@ -22,6 +22,7 @@ from pathlib import Path
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
 ROOT = Path(__file__).parent
 INDEX_FILE = ROOT / 'index.html'
+CONTENT_FILE = ROOT / 'data' / 'content.json'
 
 
 class UnifiedHandler(SimpleHTTPRequestHandler):
@@ -55,6 +56,8 @@ class UnifiedHandler(SimpleHTTPRequestHandler):
     def do_POST(self):
         if self.path == '/save':
             self._handle_save()
+        elif self.path == '/save-content':
+            self._handle_save_content()
         else:
             self.send_error(404, 'Not found')
 
@@ -108,6 +111,48 @@ class UnifiedHandler(SimpleHTTPRequestHandler):
         except Exception as e:
             print(f'  ✗ Error saving file: {e}')
             self.send_error(500, f'Error saving file: {str(e)}')
+
+    # ── /save-content ───────────────────────────────────────────────────
+    def _handle_save_content(self):
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            content = data.get('content')
+
+            if content is None:
+                self.send_error(400, 'No content payload provided')
+                return
+
+            CONTENT_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+            # Backup existing file
+            if CONTENT_FILE.exists():
+                backup_file = CONTENT_FILE.with_suffix('.json.backup')
+                if backup_file.exists():
+                    backup_file.unlink()
+                CONTENT_FILE.rename(backup_file)
+                print(f'  ✓ Backup created: {backup_file.name}')
+
+            CONTENT_FILE.write_text(
+                json.dumps(content, ensure_ascii=False, indent=2),
+                encoding='utf-8',
+            )
+            print(f'  ✓ Saved changes to {CONTENT_FILE.relative_to(ROOT)}')
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self._cors_headers()
+            self.end_headers()
+            response = json.dumps({
+                'status': 'success',
+                'message': 'Content file saved successfully',
+            })
+            self.wfile.write(response.encode('utf-8'))
+
+        except Exception as e:
+            print(f'  ✗ Error saving content file: {e}')
+            self.send_error(500, f'Error saving content file: {str(e)}')
 
     # ── Suppress noisy per-request logging ──────────────────────────────
     def log_message(self, format, *args):

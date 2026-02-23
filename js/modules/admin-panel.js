@@ -10,6 +10,8 @@
 import { refreshSubtopics } from './menu.js';
 import {
   saveContent,
+  saveIndexHTML,
+  saveContentToServer,
   importContent,
   handleFileInputChange,
   getContentData,
@@ -407,8 +409,11 @@ function createAdminUI() {
         </div>
 
         <div class="admin-control-group">
-          <button id="export-content-btn" class="admin-btn-primary">📥 Exportieren</button>
-          <button id="import-content-btn" class="admin-btn-primary">📤 Importieren</button>
+          <button id="export-content-btn" class="admin-btn-primary">📥 content.json exportieren</button>
+          <button id="import-content-btn" class="admin-btn-primary">📤 content.json importieren</button>
+          <small class="form-hint-block">
+            Diese Buttons betreffen nur die JSON-Inhaltsdatei. "Kreis-Titel speichern" schreibt in index.html.
+          </small>
         </div>
       </div>
 
@@ -448,10 +453,24 @@ function setupCircleTitleEditor() {
     }
 
     inputs.forEach((input) => {
-      const topicId = parseInt(input.dataset.topicId, 10);
       const newTitle = input.value.trim();
-      const topic = data.topics.find((t) => t.id === topicId);
-      if (topic && newTitle) topic.title = newTitle;
+      if (!newTitle) return;
+
+      const topicIndex = parseInt(input.dataset.topicIndex, 10);
+      const topicId = input.dataset.topicId;
+
+      let topic = null;
+      if (!Number.isNaN(topicIndex) && data.topics[topicIndex]) {
+        topic = data.topics[topicIndex];
+      }
+
+      if (!topic && typeof topicId !== 'undefined') {
+        topic = data.topics.find((t) => String(t.id) === String(topicId));
+      }
+
+      if (topic) {
+        topic.title = newTitle;
+      }
     });
 
     updateContentData(data);
@@ -465,6 +484,17 @@ function setupCircleTitleEditor() {
       }
     });
 
+    // Update menu tiles (mindmap) as well
+    const menuTiles = document.querySelectorAll('.menu-tile');
+    menuTiles.forEach((tile) => {
+      const tileTopicId = tile.dataset.topicId;
+      const topic = data.topics.find((t) => String(t.id) === String(tileTopicId));
+      const titleEl = tile.querySelector('.tile-title');
+      if (titleEl && topic) {
+        titleEl.textContent = topic.title;
+      }
+    });
+
     renderTopicOptions(data.topics);
 
     // Sync titles to all student layers if shared titles is enabled
@@ -474,8 +504,16 @@ function setupCircleTitleEditor() {
       console.log('[AdminPanel] Circle titles synced to all students');
     }
 
-    saveContent()
-      .then(() => showNotification('✅ Kreis-Titel gespeichert!', 'success'))
+    Promise.all([saveIndexHTML(), saveContentToServer(data)])
+      .then(([htmlSaved, jsonSaved]) => {
+        if (htmlSaved && jsonSaved) {
+          showNotification('✅ Kreis-Titel gespeichert (index.html + content.json)!', 'success');
+        } else if (htmlSaved || jsonSaved) {
+          showNotification('⚠️ Teilweise gespeichert (bitte Save-Server prüfen)', 'warning');
+        } else {
+          showNotification('⚠️ Titel aktualisiert (Speichern fehlgeschlagen)', 'warning');
+        }
+      })
       .catch((err) => {
         console.error('[AdminPanel] Error saving circle titles:', err);
         showNotification('⚠️ Titel aktualisiert (Speichern fehlgeschlagen)', 'warning');

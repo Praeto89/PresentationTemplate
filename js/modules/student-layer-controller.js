@@ -41,6 +41,7 @@ export function initStudentLayerController() {
   
   // Setze Event-Listener für Dropdown
   setupStudentDropdownListener();
+  setupDropdownVisibilityListeners();
   
   // Lade die Präsentation für den aktuellen Schüler
   const currentStudent = getCurrentStudent();
@@ -61,6 +62,15 @@ export function initStudentLayerController() {
   }
   
   console.log('[StudentLayerController] Initialized');
+}
+
+function setupDropdownVisibilityListeners() {
+  if (typeof Reveal === 'undefined' || typeof Reveal.on !== 'function') {
+    return;
+  }
+
+  Reveal.on('ready', () => toggleStudentDropdownVisibility());
+  Reveal.on('slidechanged', () => toggleStudentDropdownVisibility());
 }
 
 /**
@@ -395,7 +405,7 @@ export function toggleStudentDropdownVisibility() {
     return;
   }
   
-  const isVisible = isLayerModeEnabled();
+  const isVisible = isLayerModeEnabled() && isOverviewSlideActive();
   
   if (isVisible) {
     selectorWrapper.style.display = 'block';
@@ -404,4 +414,14 @@ export function toggleStudentDropdownVisibility() {
   }
   
   console.log('[StudentLayerController] Dropdown visibility:', isVisible);
+}
+
+function isOverviewSlideActive() {
+  if (typeof Reveal !== 'undefined' && typeof Reveal.getIndices === 'function') {
+    const indices = Reveal.getIndices();
+    return indices?.h === 0;
+  }
+
+  const overviewSlide = document.getElementById('overview');
+  return overviewSlide ? overviewSlide.classList.contains('present') : false;
 }

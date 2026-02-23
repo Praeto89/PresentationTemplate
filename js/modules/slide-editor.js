@@ -220,11 +220,12 @@ function buildSlideEditHTML() {
     detailSlides.forEach((detail, detailIdx) => {
       const h = detail.querySelector('h1, h2, h3, h4, h5, h6');
       const paragraphs = Array.from(detail.querySelectorAll(':scope > p'));
+      const detailLabel = getDisplayLabelFromHTML(h ? h.innerHTML : '', `Detail ${detailIdx + 1}`);
 
       html += `
           <div class="se-detail">
             <div class="se-detail-header">
-              <span class="se-detail-badge">Detail ${detailIdx + 1}</span>
+              <span class="se-detail-badge">${escapeHTML(detailLabel)}</span>
             </div>
             <label class="se-label">Titel</label>
             <div class="se-field" contenteditable="true"
@@ -429,7 +430,16 @@ function syncFieldToDOM(field) {
       const detail = stack.querySelectorAll('.detail-slide')[detailIdx];
       if (detail) {
         const h = detail.querySelector('h1, h2, h3, h4, h5, h6');
-        if (h) { h.innerHTML = content; saveInlineEdit(h); syncDetailToNavBox(detail); }
+        if (h) {
+          h.innerHTML = content;
+          saveInlineEdit(h);
+          syncDetailToNavBox(detail);
+
+          const badge = field.closest('.se-detail')?.querySelector('.se-detail-badge');
+          if (badge) {
+            badge.textContent = getDisplayLabelFromHTML(content, `Detail ${detailIdx + 1}`);
+          }
+        }
       }
     }
     return;
@@ -497,6 +507,14 @@ function escapeHTML(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+function getDisplayLabelFromHTML(html, fallback = '') {
+  if (!html) return fallback;
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  const text = (div.textContent || '').trim();
+  return text || fallback;
 }
 
 /* ── internal helpers ───────────────────────────────────────────────────── */

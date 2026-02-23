@@ -58,6 +58,7 @@ async function init() {
   
   // Setup clickable navigation boxes
   setupNavigationBoxes();
+  syncNavBoxSummariesFromTargets();
   
   // Setup circle navigation on overview
   setupCircleNavigation();
@@ -545,6 +546,38 @@ function setupNavigationBoxes() {
     const indices = Reveal.getIndices();
     // Return to v=0 (group-intro) of current horizontal slide
     Reveal.slide(indices.h, 0);
+  });
+}
+
+function syncNavBoxSummariesFromTargets() {
+  const navBoxes = document.querySelectorAll('.nav-box[data-target-h][data-target-v]');
+  if (!navBoxes.length) return;
+
+  navBoxes.forEach((box) => {
+    const targetH = parseInt(box.dataset.targetH, 10);
+    const targetV = parseInt(box.dataset.targetV, 10);
+    if (Number.isNaN(targetH) || Number.isNaN(targetV)) return;
+
+    const targetSlide =
+      typeof Reveal !== 'undefined' && Reveal.getSlide
+        ? Reveal.getSlide(targetH, targetV)
+        : null;
+    if (!targetSlide) return;
+
+    const detailTitle = targetSlide.querySelector(
+      ':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6',
+    );
+    const titleText = detailTitle?.textContent?.trim();
+    if (!titleText) return;
+
+    let summaryTitle = box.querySelector('.box-title, h4');
+    if (!summaryTitle) {
+      summaryTitle = document.createElement('span');
+      summaryTitle.className = 'box-title';
+      box.prepend(summaryTitle);
+    }
+
+    summaryTitle.textContent = titleText;
   });
 }
 
