@@ -18,7 +18,7 @@ export function exportHTML() {
 
   // Remove editor-injected elements
   clone
-    .querySelectorAll('.editor-controls, .edit-slide-btn, .editor-modal, .editor-hint, .floating-edit-toggle, .edit-mode-switch, .floating-action-btn')
+    .querySelectorAll('.editor-controls, .edit-slide-btn, .editor-modal, .editor-hint, .floating-edit-toggle, .edit-mode-switch, .floating-action-btn, .edit-overlay')
     .forEach((el) => el.remove());
   clone
     .querySelectorAll('.notification-toast, .nav-box-overlay, .student-selector-wrapper')

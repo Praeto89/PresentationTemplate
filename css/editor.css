@@ -236,6 +236,139 @@
   animation: fadeIn 0.3s ease;
 }
 
+/* SLIDE-EDIT PANEL (inside overlay tab) */
+
+.se-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.se-section {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+.se-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.se-section-header:hover {
+  background: linear-gradient(135deg, #e8ecf1 0%, #dce1e8 100%);
+}
+
+.se-section-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+}
+
+.se-collapse-icon {
+  font-size: 11px;
+  color: #888;
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.se-section-body {
+  padding: 14px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.se-detail {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid #e4e4e4;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.se-detail-header {
+  margin-bottom: 8px;
+}
+
+.se-detail-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.se-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #777;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.se-field {
+  min-height: 32px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: text;
+}
+
+.se-field:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.se-field:hover:not(:focus) {
+  border-color: #bbb;
+}
+
+.se-field-multiline {
+  min-height: 56px;
+  white-space: pre-wrap;
+}
+
+.se-add-paragraph-btn {
+  margin-top: 8px;
+  padding: 6px 14px;
+  border: 1px dashed #ccc;
+  border-radius: 6px;
+  background: transparent;
+  color: #888;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-start;
+}
+
+.se-add-paragraph-btn:hover {
+  border-color: #667eea;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
 /* ════════════════════════════════════════════════════════════════════════════
    EDIT BUTTON AND EDITOR MODAL
    ════════════════════════════════════════════════════════════════════════════ */

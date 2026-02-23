@@ -14,7 +14,7 @@
 
 import { setEditMode } from './menu.js';
 import { showOverlay, hideOverlay, switchTab } from './overlay.js';
-import { setupSlideEditing } from './slide-editor.js';
+import { setupSlideEditing, populateSlideEditTab } from './slide-editor.js';
 import {
   setupAdminUI,
   setupAdminControls,
@@ -135,7 +135,10 @@ function activateEditMode() {
   setupSizeControls();
   setupAdminControls();
 
-  switchTab('menu-admin');
+  // Populate the slide-edit tab with all editable content
+  populateSlideEditTab();
+
+  switchTab('slide-edit');
   setEditMode(true);
 
   console.log('[EditMode] All features activated');

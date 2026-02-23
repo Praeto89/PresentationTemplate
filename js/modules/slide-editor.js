@@ -8,6 +8,7 @@
 
 import { getSlideEdits, saveSlideEdits } from './storage.js';
 import { showNotification } from './utils/notification.js';
+import { setTabContent } from './overlay.js';
 
 /* ── public API ─────────────────────────────────────────────────────────── */
 
@@ -120,6 +121,318 @@ export function resyncAllNavBoxesFromDetailSlides() {
     synced++;
   });
   console.log(`[SlideEditor] Resynced ${synced} nav boxes`);
+}
+
+/* ── Slide-Edit Tab (Overlay) ───────────────────────────────────────────── */
+
+/**
+ * Build and inject the "Slides bearbeiten" tab content into the overlay.
+ * Shows a structured tree: Overview → Topics → Detail Slides, each with
+ * editable text fields that sync back to the live DOM.
+ */
+export function populateSlideEditTab() {
+  const html = buildSlideEditHTML();
+  setTabContent('slide-edit', html);
+  wireSlideEditEvents();
+  console.log('[SlideEditor] Slide-edit tab populated');
+}
+
+/**
+ * Scan the DOM and build the HTML for the slide-edit panel.
+ */
+function buildSlideEditHTML() {
+  let html = '<div class="se-panel">';
+
+  // ── 1. Overview Slide ────────────────────────────────────────────────
+  const overviewSlide = document.querySelector('#overview, .overview-slide');
+  if (overviewSlide) {
+    const titleEl = overviewSlide.querySelector('.overview-title');
+    const subtitleEls = overviewSlide.querySelectorAll('.overview-subtitle');
+
+    html += `
+      <div class="se-section">
+        <div class="se-section-header" data-collapsed="false">
+          <span class="se-collapse-icon">▼</span>
+          <h3>🏠 Übersichtsfolie</h3>
+        </div>
+        <div class="se-section-body">
+          <label class="se-label">Titel</label>
+          <div class="se-field" contenteditable="true"
+               data-se-target="overview-title">${titleEl ? titleEl.innerHTML : ''}</div>`;
+
+    subtitleEls.forEach((el, i) => {
+      html += `
+          <label class="se-label">Untertitel ${i + 1}</label>
+          <div class="se-field" contenteditable="true"
+               data-se-target="overview-subtitle-${i}">${el.innerHTML}</div>`;
+    });
+
+    html += `
+        </div>
+      </div>`;
+  }
+
+  // ── 2. Topic Stacks ──────────────────────────────────────────────────
+  const stacks = document.querySelectorAll('.reveal .slides > section.stack');
+  stacks.forEach((stack, stackIdx) => {
+    const topicId = stack.dataset.topicId || `topic-${stackIdx + 1}`;
+    const groupIntro = stack.querySelector('.group-intro');
+    const circleItem = document.querySelector(`.circle-item[data-slide="${stackIdx + 1}"]`);
+    const circleText = circleItem ? circleItem.querySelector('.circle-text') : null;
+    const topicName = circleText ? circleText.textContent.trim() : `Thema ${stackIdx + 1}`;
+
+    html += `
+      <div class="se-section">
+        <div class="se-section-header" data-collapsed="false">
+          <span class="se-collapse-icon">▼</span>
+          <h3>📌 ${stackIdx + 1}. ${escapeHTML(topicName)}</h3>
+        </div>
+        <div class="se-section-body">`;
+
+    // Group-intro subtitle
+    if (groupIntro) {
+      const subtitle = groupIntro.querySelector('.group-subtitle');
+      if (subtitle) {
+        html += `
+          <label class="se-label">Überblick-Untertitel</label>
+          <div class="se-field" contenteditable="true"
+               data-se-target="group-subtitle-${topicId}">${subtitle.innerHTML}</div>`;
+      }
+    }
+
+    // Detail slides
+    const detailSlides = stack.querySelectorAll('.detail-slide');
+    detailSlides.forEach((detail, detailIdx) => {
+      const h = detail.querySelector('h1, h2, h3, h4, h5, h6');
+      const paragraphs = Array.from(detail.querySelectorAll(':scope > p'));
+
+      html += `
+          <div class="se-detail">
+            <div class="se-detail-header">
+              <span class="se-detail-badge">Detail ${detailIdx + 1}</span>
+            </div>
+            <label class="se-label">Titel</label>
+            <div class="se-field" contenteditable="true"
+                 data-se-target="detail-title-${topicId}-${detailIdx}">${h ? h.innerHTML : ''}</div>`;
+
+      paragraphs.forEach((p, pIdx) => {
+        html += `
+            <label class="se-label">Absatz ${pIdx + 1}</label>
+            <div class="se-field se-field-multiline" contenteditable="true"
+                 data-se-target="detail-p-${topicId}-${detailIdx}-${pIdx}">${p.innerHTML}</div>`;
+      });
+
+      // Button to add a new paragraph
+      html += `
+            <button class="se-add-paragraph-btn" data-topic="${topicId}" data-detail="${detailIdx}">
+              + Absatz hinzufügen
+            </button>
+          </div>`;
+    });
+
+    html += `
+        </div>
+      </div>`;
+  });
+
+  // ── 3. Closing Slide ─────────────────────────────────────────────────
+  const closingSlide = document.querySelector('.closing-slide');
+  if (closingSlide) {
+    const closingTitle = closingSlide.querySelector('h2');
+    const closingP = closingSlide.querySelector('p');
+
+    html += `
+      <div class="se-section">
+        <div class="se-section-header" data-collapsed="false">
+          <span class="se-collapse-icon">▼</span>
+          <h3>🎬 Schlussfolie</h3>
+        </div>
+        <div class="se-section-body">
+          <label class="se-label">Titel</label>
+          <div class="se-field" contenteditable="true"
+               data-se-target="closing-title">${closingTitle ? closingTitle.innerHTML : ''}</div>
+          <label class="se-label">Text</label>
+          <div class="se-field" contenteditable="true"
+               data-se-target="closing-text">${closingP ? closingP.innerHTML : ''}</div>
+        </div>
+      </div>`;
+  }
+
+  html += '</div>';
+  return html;
+}
+
+/**
+ * Wire up event listeners for the slide-edit panel fields.
+ */
+function wireSlideEditEvents() {
+  const panel = document.querySelector('#slide-edit-content');
+  if (!panel) return;
+
+  // ── Collapsible sections ─────────────────────────────────────────────
+  panel.querySelectorAll('.se-section-header').forEach((header) => {
+    header.addEventListener('click', () => {
+      const body = header.nextElementSibling;
+      const icon = header.querySelector('.se-collapse-icon');
+      const collapsed = header.dataset.collapsed === 'true';
+      header.dataset.collapsed = collapsed ? 'false' : 'true';
+      body.style.display = collapsed ? '' : 'none';
+      icon.textContent = collapsed ? '▼' : '▶';
+    });
+  });
+
+  // ── Editable fields → sync to live DOM on blur ───────────────────────
+  panel.querySelectorAll('.se-field').forEach((field) => {
+    // Disable Reveal keyboard while typing
+    field.addEventListener('focus', () => {
+      if (typeof Reveal !== 'undefined') Reveal.configure({ keyboard: false });
+    });
+
+    field.addEventListener('blur', () => {
+      if (typeof Reveal !== 'undefined') Reveal.configure({ keyboard: true });
+      syncFieldToDOM(field);
+    });
+
+    // Block key events from reaching Reveal
+    field.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); field.blur(); return; }
+      e.stopPropagation();
+    });
+    field.addEventListener('keyup', (e) => e.stopPropagation());
+    field.addEventListener('keypress', (e) => e.stopPropagation());
+  });
+
+  // ── "Add paragraph" buttons ──────────────────────────────────────────
+  panel.querySelectorAll('.se-add-paragraph-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const topicId = btn.dataset.topic;
+      const detailIdx = parseInt(btn.dataset.detail, 10);
+      addParagraphToDetail(topicId, detailIdx, btn);
+    });
+  });
+}
+
+/**
+ * Sync a single overlay field back to the live slide DOM element.
+ */
+function syncFieldToDOM(field) {
+  const target = field.dataset.seTarget;
+  if (!target) return;
+
+  const content = field.innerHTML;
+
+  // ── Overview fields ──────────────────────────────────────────────────
+  if (target === 'overview-title') {
+    const el = document.querySelector('.overview-title');
+    if (el) { el.innerHTML = content; saveInlineEdit(el); }
+    return;
+  }
+  if (target.startsWith('overview-subtitle-')) {
+    const idx = parseInt(target.split('-').pop(), 10);
+    const els = document.querySelectorAll('.overview-subtitle');
+    if (els[idx]) { els[idx].innerHTML = content; saveInlineEdit(els[idx]); }
+    return;
+  }
+
+  // ── Closing slide ────────────────────────────────────────────────────
+  if (target === 'closing-title') {
+    const el = document.querySelector('.closing-slide h2');
+    if (el) { el.innerHTML = content; saveInlineEdit(el); }
+    return;
+  }
+  if (target === 'closing-text') {
+    const el = document.querySelector('.closing-slide p');
+    if (el) { el.innerHTML = content; saveInlineEdit(el); }
+    return;
+  }
+
+  // ── Group subtitle ───────────────────────────────────────────────────
+  if (target.startsWith('group-subtitle-')) {
+    const topicId = target.replace('group-subtitle-', '');
+    const stack = document.querySelector(`section.stack[data-topic-id="${topicId}"]`);
+    if (stack) {
+      const el = stack.querySelector('.group-intro .group-subtitle');
+      if (el) { el.innerHTML = content; saveInlineEdit(el); }
+    }
+    return;
+  }
+
+  // ── Detail slide title ───────────────────────────────────────────────
+  if (target.startsWith('detail-title-')) {
+    const parts = target.replace('detail-title-', '').split('-');
+    const detailIdx = parseInt(parts.pop(), 10);
+    const topicId = parts.join('-');
+    const stack = document.querySelector(`section.stack[data-topic-id="${topicId}"]`);
+    if (stack) {
+      const detail = stack.querySelectorAll('.detail-slide')[detailIdx];
+      if (detail) {
+        const h = detail.querySelector('h1, h2, h3, h4, h5, h6');
+        if (h) { h.innerHTML = content; saveInlineEdit(h); syncDetailToNavBox(detail); }
+      }
+    }
+    return;
+  }
+
+  // ── Detail slide paragraph ───────────────────────────────────────────
+  if (target.startsWith('detail-p-')) {
+    const parts = target.replace('detail-p-', '').split('-');
+    const pIdx = parseInt(parts.pop(), 10);
+    const detailIdx = parseInt(parts.pop(), 10);
+    const topicId = parts.join('-');
+    const stack = document.querySelector(`section.stack[data-topic-id="${topicId}"]`);
+    if (stack) {
+      const detail = stack.querySelectorAll('.detail-slide')[detailIdx];
+      if (detail) {
+        const ps = Array.from(detail.querySelectorAll(':scope > p'));
+        if (ps[pIdx]) { ps[pIdx].innerHTML = content; saveInlineEdit(ps[pIdx]); syncDetailToNavBox(detail); }
+      }
+    }
+    return;
+  }
+}
+
+/**
+ * Persist an individual element's content through the existing storage system.
+ */
+function saveInlineEdit(element) {
+  const identifier = getElementIdentifier(element);
+  if (!identifier) return;
+  const edits = getSlideEdits();
+  edits[identifier] = element.innerHTML;
+  saveSlideEdits(edits);
+}
+
+/**
+ * Add a new paragraph to a detail slide and refresh the panel.
+ */
+function addParagraphToDetail(topicId, detailIdx, btnElement) {
+  const stack = document.querySelector(`section.stack[data-topic-id="${topicId}"]`);
+  if (!stack) return;
+  const detail = stack.querySelectorAll('.detail-slide')[detailIdx];
+  if (!detail) return;
+
+  // Insert before the return button
+  const returnBtn = detail.querySelector('.return-to-main');
+  const newP = document.createElement('p');
+  newP.textContent = 'Neuer Absatz – hier Text eingeben';
+  if (returnBtn) {
+    detail.insertBefore(newP, returnBtn);
+  } else {
+    detail.appendChild(newP);
+  }
+
+  makeEditable(newP);
+  saveInlineEdit(newP);
+
+  // Re-populate the panel so the new paragraph shows up
+  populateSlideEditTab();
+  showNotification('Absatz hinzugefügt', 'success');
+}
+
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 /* ── internal helpers ───────────────────────────────────────────────────── */
