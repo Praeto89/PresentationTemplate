@@ -47,11 +47,11 @@ Für jeden Schüler:
 ```
 Eine Präsentation
 ├── Layer-Modus ON/OFF
-├── Schüler 1 (z.B. "Schüler 1")
+├── Schüler 1
 │   ├── 8 Kreise
 │   ├── Eigene Slide-Edits
 │   └── Eigene Lesezeichen
-├── Schüler 2 (z.B. "Schüler 2")
+├── Schüler 2
 │   ├── 6 Kreise
 │   ├── Eigene Slide-Edits
 │   └── Eigene Lesezeichen
