@@ -1144,6 +1144,33 @@ body:not(.edit-mode) .editor-controls {
   box-shadow: var(--shadow-md);
 }
 
+.editor-autosave-status {
+  position: fixed;
+  bottom: 78px;
+  right: 20px;
+  background: rgba(52, 152, 219, 0.9);
+  color: white;
+  padding: 8px 14px;
+  border-radius: var(--radius-lg);
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 9998;
+  box-shadow: var(--shadow-md);
+}
+
+.editor-autosave-status.is-pending,
+.editor-autosave-status.is-saving {
+  background: rgba(241, 196, 15, 0.92);
+}
+
+.editor-autosave-status.is-saved {
+  background: rgba(46, 204, 113, 0.92);
+}
+
+.editor-autosave-status.is-error {
+  background: rgba(231, 76, 60, 0.92);
+}
+
 /* ════════════════════════════════════════════════════════════════════════════
    FLOATING ACTION BUTTONS (edit-mode only)
    ════════════════════════════════════════════════════════════════════════════ */

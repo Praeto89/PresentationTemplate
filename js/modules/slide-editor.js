@@ -16,6 +16,10 @@ import {
 } from './student-manager.js';
 import { handleStudentSwitch } from './student-layer-controller.js';
 
+const AUTO_SAVE_DELAY_MS = 3000;
+let autoSaveTimer = null;
+let autoSaveStatusTimer = null;
+
 /* ── public API ─────────────────────────────────────────────────────────── */
 
 /**
@@ -58,6 +62,9 @@ export function setupSlideEditing() {
   hint.className = 'editor-hint';
   hint.innerHTML = '📝 Edit Mode | Ctrl+S to export | Ctrl+E for admin';
   document.body.appendChild(hint);
+
+  ensureAutoSaveStatusBadge();
+  setAutoSaveStatus('idle');
 
   console.log('[SlideEditor] Slide editing setup complete');
 }
@@ -455,6 +462,7 @@ function saveInlineEdit(element) {
   const edits = loadStudentSlideEdits();
   edits[identifier] = element.innerHTML;
   saveStudentSlideEdits(edits);
+  scheduleAutoSave();
 }
 
 /**
@@ -478,6 +486,7 @@ function addParagraphToDetail(topicId, detailIdx) {
 
   makeEditable(newP);
   saveInlineEdit(newP);
+  scheduleAutoSave();
 
   // Re-populate the panel so the new paragraph shows up
   populateSlideEditTab();
@@ -593,11 +602,85 @@ function saveElementContent(element) {
   const edits = loadStudentSlideEdits();
   edits[identifier] = content;
   saveStudentSlideEdits(edits);
+  scheduleAutoSave();
 
   console.log(`[SlideEditor] Saved: ${identifier}`);
 
   syncDetailToNavBox(element);
   showNotification('Änderungen gespeichert!', 'success');
+}
+
+function scheduleAutoSave() {
+  if (autoSaveTimer) {
+    clearTimeout(autoSaveTimer);
+  }
+
+  setAutoSaveStatus('pending');
+
+  autoSaveTimer = setTimeout(() => {
+    import('./export-html.js')
+      .then(({ exportHTML }) => {
+        setAutoSaveStatus('saving');
+        return exportHTML({ silent: true });
+      })
+      .then((success) => {
+        setAutoSaveStatus(success ? 'saved' : 'error');
+      })
+      .catch((error) => {
+        console.warn('[SlideEditor] Auto-save failed:', error);
+        setAutoSaveStatus('error');
+      });
+  }, AUTO_SAVE_DELAY_MS);
+}
+
+function ensureAutoSaveStatusBadge() {
+  if (document.querySelector('.editor-autosave-status')) return;
+
+  const badge = document.createElement('div');
+  badge.className = 'editor-autosave-status';
+  badge.innerHTML = '💾 Auto-Save aktiv';
+  document.body.appendChild(badge);
+}
+
+function setAutoSaveStatus(state) {
+  const badge = document.querySelector('.editor-autosave-status');
+  if (!badge) return;
+
+  if (autoSaveStatusTimer) {
+    clearTimeout(autoSaveStatusTimer);
+    autoSaveStatusTimer = null;
+  }
+
+  badge.classList.remove('is-pending', 'is-saving', 'is-saved', 'is-error');
+
+  if (state === 'pending') {
+    badge.classList.add('is-pending');
+    badge.innerHTML = '💾 Auto-Save geplant…';
+    return;
+  }
+
+  if (state === 'saving') {
+    badge.classList.add('is-saving');
+    badge.innerHTML = '💾 Speichert…';
+    return;
+  }
+
+  if (state === 'saved') {
+    badge.classList.add('is-saved');
+    badge.innerHTML = '✅ Auto-Saved';
+    autoSaveStatusTimer = setTimeout(() => {
+      setAutoSaveStatus('idle');
+    }, 2000);
+    return;
+  }
+
+  if (state === 'error') {
+    badge.classList.add('is-error');
+    badge.innerHTML = '❌ Auto-Save fehlgeschlagen';
+    return;
+  }
+
+  badge.innerHTML = '💾 Auto-Save aktiv';
 }
 
 /**

@@ -126,6 +126,7 @@ Aktivierung: `?mode=edit` in der URL oder `Ctrl+E` während der Präsentation.
 | **Kreis-Einstellungen** | ⚙️-Button → Anzahl, Grösse, Positionierung |
 | **Schüler verwalten** | 👥-Button → Layer-System, Drag-Drop Reihenfolge |
 | **Menu verwalten** | Overlay → Tab "Menu verwalten" → Subtopics, Titel |
+| **Auto-Save** | Änderungen werden im Edit-Mode nach kurzer Pause (~3s) automatisch in `index.html` gespeichert (Save-Server aktiv) |
 | **Speichern** | `Ctrl+S` → exportiert in HTML (benötigt Save-Server) |
 
 ## Navigation

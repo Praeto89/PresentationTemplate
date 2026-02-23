@@ -11,7 +11,8 @@ import { showNotification } from './utils/notification.js';
 /**
  * Clone the current page, clean it, and POST to save_server.py.
  */
-export function exportHTML() {
+export function exportHTML(options = {}) {
+  const { silent = false } = options;
   const clone = document.documentElement.cloneNode(true);
 
   cleanupRevealRuntime(clone);
@@ -43,7 +44,7 @@ export function exportHTML() {
 
   const htmlContent = '<!DOCTYPE html>\n' + clone.outerHTML;
 
-  fetch('/save', {
+  return fetch('/save', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ html: htmlContent }),
@@ -54,14 +55,20 @@ export function exportHTML() {
     })
     .then((data) => {
       console.log('[ExportHTML] Server response:', data);
-      showNotification('✅ Gespeichert! Seite neu laden um Änderungen zu sehen.', 'success');
+      if (!silent) {
+        showNotification('✅ Gespeichert! Seite neu laden um Änderungen zu sehen.', 'success');
+      }
+      return true;
     })
     .catch((error) => {
       console.error('[ExportHTML] Save error:', error);
-      showNotification(
-        '❌ Speichern fehlgeschlagen! Wurde server.py gestartet?',
-        'error',
-      );
+      if (!silent) {
+        showNotification(
+          '❌ Speichern fehlgeschlagen! Wurde server.py gestartet?',
+          'error',
+        );
+      }
+      return false;
     });
 }
 
