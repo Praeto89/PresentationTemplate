@@ -25,6 +25,12 @@ import {
 import { showNotification } from './utils/notification.js';
 import { setupSlideEditing } from './slide-editor.js';
 import { STORAGE } from '../config/index.js';
+import {
+  isSharedCircleTitlesEnabled,
+  setSharedCircleTitles,
+  syncCircleTitlesToAllStudents,
+  isLayerModeEnabled,
+} from './student-manager.js';
 
 /* ── module state ───────────────────────────────────────────────────────── */
 
@@ -340,6 +346,16 @@ function createAdminUI() {
             Ändere die Titel der Kreise in der Übersichtsfolie und im Menü
           </small>
         </div>
+        <div class="shared-titles-toggle mt-sm" ${!isLayerModeEnabled() ? 'style="display:none"' : ''}>
+          <label class="shared-titles-label">
+            <input type="checkbox" id="shared-circle-titles-checkbox"
+                   ${isSharedCircleTitlesEnabled() ? 'checked' : ''}>
+            <span>🔗 Gleiche Kreis-Titel für alle Schüler-Layer</span>
+          </label>
+          <small class="form-hint-block" style="margin-left: 24px;">
+            Wenn aktiv, werden gespeicherte Kreis-Titel automatisch auf alle Schüler-Layer übertragen.
+          </small>
+        </div>
       </div>
 
       <!-- SLIDE GENERATION SECTION -->
@@ -451,6 +467,13 @@ function setupCircleTitleEditor() {
 
     renderTopicOptions(data.topics);
 
+    // Sync titles to all student layers if shared titles is enabled
+    if (isSharedCircleTitlesEnabled() && isLayerModeEnabled()) {
+      const allTitles = data.topics.map((t) => t.title || '');
+      syncCircleTitlesToAllStudents(allTitles);
+      console.log('[AdminPanel] Circle titles synced to all students');
+    }
+
     saveContent()
       .then(() => showNotification('✅ Kreis-Titel gespeichert!', 'success'))
       .catch((err) => {
@@ -459,6 +482,34 @@ function setupCircleTitleEditor() {
       });
 
     console.log('[AdminPanel] Circle titles updated');
+  });
+
+  // Wire shared-circle-titles checkbox
+  setupSharedCircleTitlesCheckbox();
+}
+
+/**
+ * Wire the "Gleiche Kreis-Titel" checkbox events.
+ */
+function setupSharedCircleTitlesCheckbox() {
+  const checkbox = document.getElementById('shared-circle-titles-checkbox');
+  if (!checkbox) return;
+
+  checkbox.addEventListener('change', (e) => {
+    const enabled = e.target.checked;
+    setSharedCircleTitles(enabled);
+
+    if (enabled && isLayerModeEnabled()) {
+      // Immediately sync current titles to all students
+      const data = getContentData();
+      if (data && data.topics) {
+        const allTitles = data.topics.map((t) => t.title || '');
+        syncCircleTitlesToAllStudents(allTitles);
+        showNotification('🔗 Kreis-Titel werden jetzt für alle Schüler synchronisiert.', 'success');
+      }
+    } else if (!enabled) {
+      showNotification('🔓 Kreis-Titel sind jetzt individuell pro Schüler.', 'info');
+    }
   });
 }
 

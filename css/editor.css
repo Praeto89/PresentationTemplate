@@ -1107,6 +1107,37 @@ body:not(.edit-mode) .editor-controls {
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
+   SHARED CIRCLE TITLES TOGGLE
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.shared-titles-toggle {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #f0f7ff;
+  border: 1px solid #b3d4fc;
+  border-radius: var(--radius-sm, 6px);
+}
+
+.shared-titles-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  user-select: none;
+}
+
+.shared-titles-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #0066cc;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
    FORM HINTS & SPACING UTILITIES
    ════════════════════════════════════════════════════════════════════════════ */
 

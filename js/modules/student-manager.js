@@ -12,6 +12,7 @@ const STORAGE_KEYS = {
   LAYER_COUNT: STORAGE.layerCount,
   STUDENT_CONFIGS: STORAGE.studentConfigs,
   CURRENT_STUDENT: STORAGE.currentStudent,
+  SHARED_CIRCLE_TITLES: STORAGE.sharedCircleTitles,
 };
 
 let studentConfigs = [];
@@ -359,4 +360,41 @@ export function reorderStudents(fromIndex, toIndex) {
   localStorage.setItem(STORAGE_KEYS.CURRENT_STUDENT, currentStudentIndex.toString());
   
   console.log('[StudentManager] Reordered students:', fromIndex, '->', toIndex);
+}
+
+/**
+ * Prüft, ob "Gleiche Kreis-Titel für alle" aktiviert ist
+ * @returns {boolean}
+ */
+export function isSharedCircleTitlesEnabled() {
+  return localStorage.getItem(STORAGE_KEYS.SHARED_CIRCLE_TITLES) === 'true';
+}
+
+/**
+ * Aktiviert/Deaktiviert "Gleiche Kreis-Titel für alle"
+ * @param {boolean} enabled
+ */
+export function setSharedCircleTitles(enabled) {
+  localStorage.setItem(STORAGE_KEYS.SHARED_CIRCLE_TITLES, enabled ? 'true' : 'false');
+  console.log('[StudentManager] Shared circle titles set to:', enabled);
+}
+
+/**
+ * Synchronisiert Kreis-Titel (aus contentData) auf alle Schüler-Configs.
+ * Speichert die Titel als circleTitles-Array in jeder studentConfig.
+ * @param {Array} titles - Array von Titel-Strings aus contentData.topics
+ */
+export function syncCircleTitlesToAllStudents(titles) {
+  if (!isSharedCircleTitlesEnabled()) return;
+  if (!titles || !Array.isArray(titles) || titles.length === 0) return;
+
+  for (let i = 0; i < studentConfigs.length; i++) {
+    const topicCount = studentConfigs[i].topicCount || titles.length;
+    const titlesToApply = titles.slice(0, topicCount);
+    studentConfigs[i].circleTitles = titlesToApply;
+    studentConfigs[i].lastModified = new Date().toISOString();
+  }
+
+  localStorage.setItem(STORAGE_KEYS.STUDENT_CONFIGS, JSON.stringify(studentConfigs));
+  console.log('[StudentManager] Circle titles synced to all', studentConfigs.length, 'students:', titles);
 }

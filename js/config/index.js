@@ -90,6 +90,7 @@ export const STORAGE = {
   layerCount: 'layerCount',
   studentConfigs: 'studentConfigs',
   currentStudent: 'currentStudent',
+  sharedCircleTitles: 'sharedCircleTitlesEnabled',
 };
 
 // ==========================
