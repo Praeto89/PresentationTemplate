@@ -85,22 +85,6 @@ function activateEditMode() {
   console.log('[EditMode] Edit mode activated');
   document.body.classList.add('edit-mode');
 
-  // ── floating buttons (only visible in edit mode) ─────────────────────
-  createFloatingButton({
-    className: 'floating-action-btn--circles',
-    label: '⚙️ Kreise einstellen',
-    onClick: () => showCircleSettingsModal(),
-  });
-
-  createFloatingButton({
-    className: 'floating-action-btn--students',
-    label: '👥 Schüler verwalten',
-    onClick: () => {
-      showOverlay('Bearbeitungsmodus');
-      switchTab('students');
-    },
-  });
-
   // ── slide editing ────────────────────────────────────────────────────
   if (typeof Reveal !== 'undefined' && Reveal.isReady && Reveal.isReady()) {
     setupSlideEditing();
@@ -139,10 +123,6 @@ function deactivateEditMode() {
   console.log('[EditMode] Edit mode deactivated');
   document.body.classList.remove('edit-mode');
 
-  // Remove floating buttons
-  document.querySelector('.floating-action-btn--circles')?.remove();
-  document.querySelector('.floating-action-btn--students')?.remove();
-
   // Disable inline editing
   document.querySelectorAll('[contenteditable="true"]').forEach((el) => {
     el.contentEditable = 'false';
@@ -156,17 +136,4 @@ function deactivateEditMode() {
   console.log('[EditMode] All features deactivated');
 }
 
-/* ── helpers ─────────────────────────────────────────────────────────────── */
 
-/**
- * Create a fixed-position floating action button.
- * @param {object} opts
- */
-function createFloatingButton({ className, label, onClick }) {
-  const btn = document.createElement('button');
-  btn.className = `floating-action-btn ${className}`;
-  btn.innerHTML = label;
-
-  btn.addEventListener('click', onClick);
-  document.body.appendChild(btn);
-}
