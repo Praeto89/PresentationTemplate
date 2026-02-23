@@ -6,9 +6,15 @@
  * ════════════════════════════════════════════════════════════════════════════
  */
 
-import { getSlideEdits, saveSlideEdits } from './storage.js';
+import { loadStudentSlideEdits, saveStudentSlideEdits } from './storage.js';
 import { showNotification } from './utils/notification.js';
 import { setTabContent } from './overlay.js';
+import {
+  getAllStudents,
+  getCurrentStudentIndex,
+  isLayerModeEnabled,
+} from './student-manager.js';
+import { handleStudentSwitch } from './student-layer-controller.js';
 
 /* ── public API ─────────────────────────────────────────────────────────── */
 
@@ -143,6 +149,8 @@ export function populateSlideEditTab() {
 function buildSlideEditHTML() {
   let html = '<div class="se-panel">';
 
+  html += buildStudentSelectorHTML();
+
   // ── 1. Overview Slide ────────────────────────────────────────────────
   const overviewSlide = document.querySelector('#overview, .overview-slide');
   if (overviewSlide) {
@@ -262,12 +270,59 @@ function buildSlideEditHTML() {
   return html;
 }
 
+function buildStudentSelectorHTML() {
+  if (!isLayerModeEnabled()) {
+    return '';
+  }
+
+  const students = getAllStudents();
+  if (!students.length) {
+    return `
+      <div class="se-student-switcher">
+        <label class="se-label">Aktiver Schüler</label>
+        <div class="se-student-hint">Keine Schüler angelegt.</div>
+      </div>`;
+  }
+
+  const currentIndex = getCurrentStudentIndex();
+  const options = students
+    .map((student, index) => {
+      const selected = index === currentIndex ? ' selected' : '';
+      return `<option value="${index}"${selected}>${escapeHTML(student.name)}</option>`;
+    })
+    .join('');
+
+  return `
+    <div class="se-student-switcher">
+      <label for="se-student-selector" class="se-label">Aktiver Schüler</label>
+      <select id="se-student-selector" class="se-student-selector">
+        ${options}
+      </select>
+    </div>`;
+}
+
 /**
  * Wire up event listeners for the slide-edit panel fields.
  */
 function wireSlideEditEvents() {
   const panel = document.querySelector('#slide-edit-content');
   if (!panel) return;
+
+  const studentSelector = panel.querySelector('#se-student-selector');
+  if (studentSelector) {
+    studentSelector.addEventListener('change', async (event) => {
+      const newStudentIndex = parseInt(event.target.value, 10);
+      if (Number.isNaN(newStudentIndex)) return;
+
+      studentSelector.disabled = true;
+      try {
+        await handleStudentSwitch(newStudentIndex);
+        populateSlideEditTab();
+      } finally {
+        studentSelector.disabled = false;
+      }
+    });
+  }
 
   // ── Collapsible sections ─────────────────────────────────────────────
   panel.querySelectorAll('.se-section-header').forEach((header) => {
@@ -397,15 +452,15 @@ function syncFieldToDOM(field) {
 function saveInlineEdit(element) {
   const identifier = getElementIdentifier(element);
   if (!identifier) return;
-  const edits = getSlideEdits();
+  const edits = loadStudentSlideEdits();
   edits[identifier] = element.innerHTML;
-  saveSlideEdits(edits);
+  saveStudentSlideEdits(edits);
 }
 
 /**
  * Add a new paragraph to a detail slide and refresh the panel.
  */
-function addParagraphToDetail(topicId, detailIdx, btnElement) {
+function addParagraphToDetail(topicId, detailIdx) {
   const stack = document.querySelector(`section.stack[data-topic-id="${topicId}"]`);
   if (!stack) return;
   const detail = stack.querySelectorAll('.detail-slide')[detailIdx];
@@ -535,9 +590,9 @@ function saveElementContent(element) {
 
   if (!identifier) return;
 
-  const edits = getSlideEdits();
+  const edits = loadStudentSlideEdits();
   edits[identifier] = content;
-  saveSlideEdits(edits);
+  saveStudentSlideEdits(edits);
 
   console.log(`[SlideEditor] Saved: ${identifier}`);
 
@@ -670,7 +725,7 @@ function getElementIdentifier(element) {
 }
 
 function applyStoredEdits() {
-  const edits = getSlideEdits();
+  const edits = loadStudentSlideEdits();
 
   Object.keys(edits).forEach((identifier) => {
     const content = edits[identifier];

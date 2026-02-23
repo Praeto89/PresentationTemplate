@@ -184,13 +184,24 @@ export async function saveIndexHTML() {
         const doctype = document.doctype ? `<!DOCTYPE ${document.doctype.name}>\n` : '<!DOCTYPE html>\n';
         const htmlContent = doctype + clone.outerHTML;
         
-        const response = await fetch('http://localhost:8001/save', {
+        let response = await fetch('/save', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ html: htmlContent })
         });
+
+        // Fallback for legacy split-server setup (save_server.py on 8001)
+        if (!response.ok && response.status === 404) {
+            response = await fetch('http://localhost:8001/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ html: htmlContent })
+            });
+        }
         
         if (!response.ok) {
             throw new Error(`Server responded with ${response.status}`);

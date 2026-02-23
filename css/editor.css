@@ -138,9 +138,10 @@
 .overlay-content {
   background: white;
   border-radius: 12px;
-  width: 90%;
-  max-width: 900px;
-  max-height: 85vh;
+  width: 96%;
+  max-width: 1280px;
+  height: 90vh;
+  max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   display: flex;
@@ -242,6 +243,37 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.se-student-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.se-student-selector {
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  background: #fff;
+}
+
+.se-student-selector:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+  outline: none;
+}
+
+.se-student-hint {
+  font-size: 13px;
+  color: #666;
 }
 
 .se-section {

@@ -14,11 +14,7 @@ import {
   loadStudentState,
 } from './student-manager.js';
 import {
-  getSlideEdits,
   loadStudentSlideEdits,
-  saveStudentSlideEdits,
-  loadStudentBookmarks,
-  saveStudentBookmarks,
   getBookmarks,
   saveIndexHTML,
   getContentData,
@@ -130,7 +126,7 @@ export async function handleStudentSwitch(newStudentIndex) {
   
   // Speichere aktuellen Schüler-State
   if (oldStudent) {
-    const slideEdits = getSlideEdits();
+    const slideEdits = loadStudentSlideEdits();
     const bookmarks = getBookmarks();
     
     saveStudentState(oldIndex, {
@@ -150,6 +146,9 @@ export async function handleStudentSwitch(newStudentIndex) {
   }
   
   console.log('[StudentLayerController] Switched to student:', newStudent.name);
+
+  // Keep all student selectors in sync across UI surfaces
+  syncAllStudentSelectors(newStudentIndex);
   
   // Lade neuen Schüler-State
   const state = loadStudentState(newStudentIndex);
@@ -170,6 +169,30 @@ export async function handleStudentSwitch(newStudentIndex) {
   
   // Regeneriere Präsentation
   await reloadPresentationForStudent();
+}
+
+/**
+ * Synchronisiert alle Student-Selects im UI auf denselben Index.
+ * - globales Dropdown in der Präsentation
+ * - Dropdown im Schüler-Tab
+ * - Dropdown im Slides-bearbeiten-Tab
+ */
+function syncAllStudentSelectors(index) {
+  const normalizedIndex = Number.isInteger(index) ? index : parseInt(index, 10);
+  if (Number.isNaN(normalizedIndex)) return;
+
+  const selectorIds = ['student-selector', 'student-select-edit', 'se-student-selector'];
+  selectorIds.forEach((selectorId) => {
+    const select = document.getElementById(selectorId);
+    if (!select) return;
+
+    const optionExists = Array.from(select.options).some(
+      (option) => parseInt(option.value, 10) === normalizedIndex,
+    );
+    if (optionExists) {
+      select.value = String(normalizedIndex);
+    }
+  });
 }
 
 /**
@@ -279,6 +302,19 @@ export async function reloadPresentationForStudent() {
     const slidesContainer = document.querySelector('.reveal .slides');
     if (slidesContainer) {
       slidesContainer.innerHTML = html;
+
+      // Apply student-specific state to regenerated slides
+      const state = loadStudentState(getCurrentStudentIndex());
+      if (state) {
+        updateSlideEditsFromState(state.slideEdits);
+        updateBookmarksFromState(state.bookmarks);
+      }
+
+      if (student.useNameAsTitle) {
+        updateOverviewTitleForStudent(student.name);
+      } else if (contentData.title) {
+        updateOverviewTitleForStudent(contentData.title);
+      }
       
       // Reload Reveal.js (ohne Overlay zu schließen)
       if (typeof Reveal !== 'undefined') {
@@ -329,9 +365,6 @@ export function updateStudentDropdown(students) {
     console.warn('[StudentLayerController] Student selector element not found');
     return;
   }
-  
-  // Speichere aktuell selektierten Index
-  const currentValue = selector.value;
   
   // Lösche alte Optionen
   selector.innerHTML = '';

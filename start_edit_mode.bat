@@ -28,12 +28,8 @@ if errorlevel 1 (
 
 echo Starting Edit Mode...
 echo.
-echo Starting Save Server on port 8001...
-start "Save Server" cmd /k python save_server.py
-timeout /t 2 /nobreak
-echo.
-echo Starting Live Server on port 8000...
-start "Live Server" cmd /k python -m http.server 8000
+echo Starting Unified Server on port 8000...
+start "Presentation Server" cmd /k python server.py
 timeout /t 2 /nobreak
 echo.
 echo Opening browser in edit mode...
@@ -41,8 +37,7 @@ timeout /t 1 /nobreak
 start http://localhost:8000/index.html?mode=edit
 echo.
 echo Edit Mode started!
-echo - Save Server running on port 8001
-echo - Live Server running on port 8000
+echo - Unified Server running on port 8000
 echo - Open http://localhost:8000/index.html?mode=edit in your browser
 echo.
 echo Press any key to exit...

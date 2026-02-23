@@ -50,12 +50,10 @@ function getOrCreateOverlay() {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
   
-  // Close on backdrop click (nur wenn direkt auf overlay geklickt)
+  // Keep overlay open on backdrop clicks to avoid accidental closes
   overlayElement.addEventListener('click', (e) => {
-    // Nur schließen wenn der Click direkt auf das Overlay war, nicht auf Kind-Elemente
     if (e.target === overlayElement && e.currentTarget === overlayElement) {
       e.stopPropagation();
-      hideOverlay();
     }
   });
 
