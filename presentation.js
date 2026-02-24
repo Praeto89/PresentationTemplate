@@ -111,6 +111,11 @@ async function init() {
       el.classList.remove('shown');
     }
   });
+
+  // Re-apply title-only nav previews after navigation in case other modules update DOM
+  Reveal.on('slidechanged', () => {
+    sanitizeNavBoxPreviewContent();
+  });
   
   // ESC returns to overview (but not when overlay or input is active)
   document.addEventListener('keydown', (e) => {
@@ -134,6 +139,10 @@ async function init() {
 
   // Load content data (needed for admin UI, student layers, etc.)
   await loadContent();
+
+  // Content may update slides asynchronously; ensure nav previews are up to date
+  syncNavBoxSummariesFromTargets();
+  sanitizeNavBoxPreviewContent();
 
   // Initialize Student Layer Controller
   try {
@@ -499,6 +508,10 @@ function hoverPlaceholder(currentIndices, vIndex) {
 function setupNavigationBoxes() {
   let expandedBox = null;
   let overlay = null;
+
+  // Ensure nav-box preview content matches current detail slides
+  syncNavBoxSummariesFromTargets();
+  sanitizeNavBoxPreviewContent();
   
   // Create overlay for expanded boxes
   overlay = document.createElement('div');
@@ -564,20 +577,62 @@ function syncNavBoxSummariesFromTargets() {
         : null;
     if (!targetSlide) return;
 
-    const detailTitle = targetSlide.querySelector(
-      ':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6',
-    );
-    const titleText = detailTitle?.textContent?.trim();
-    if (!titleText) return;
+    const fragment = buildNavPreviewFragmentFromSlide(targetSlide);
 
-    let summaryTitle = box.querySelector('.box-title, h4');
-    if (!summaryTitle) {
-      summaryTitle = document.createElement('span');
-      summaryTitle.className = 'box-title';
-      box.prepend(summaryTitle);
+    // Always replace content to avoid stale placeholder text in persisted HTML
+    box.innerHTML = '';
+
+    if (!fragment.childNodes.length) {
+      return;
     }
 
+    if (box.classList.contains('expanded')) {
+      const tmp = document.createElement('div');
+      tmp.appendChild(fragment.cloneNode(true));
+      box.dataset.originalContent = tmp.innerHTML;
+      return;
+    }
+
+    box.appendChild(fragment);
+  });
+
+  sanitizeNavBoxPreviewContent();
+}
+
+function buildNavPreviewFragmentFromSlide(targetSlide) {
+  const fragment = document.createDocumentFragment();
+
+  const detailTitle = targetSlide.querySelector(
+    ':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6',
+  );
+  const titleText = detailTitle?.textContent?.trim();
+  if (titleText) {
+    const summaryTitle = document.createElement('h4');
+    summaryTitle.className = detailTitle.className || '';
     summaryTitle.textContent = titleText;
+    fragment.appendChild(summaryTitle);
+  }
+
+  return fragment;
+}
+
+function sanitizeNavBoxPreviewContent() {
+  const navBoxes = document.querySelectorAll('.nav-box[data-target-h][data-target-v]');
+  if (!navBoxes.length) return;
+
+  navBoxes.forEach((box) => {
+    if (box.classList.contains('expanded')) return;
+
+    const titleSource = box.querySelector('.box-title, h1, h2, h3, h4, h5, h6');
+    const titleText = titleSource?.textContent?.trim() || '';
+
+    box.innerHTML = '';
+
+    if (titleText) {
+      const titleEl = document.createElement('h4');
+      titleEl.textContent = titleText;
+      box.appendChild(titleEl);
+    }
   });
 }
 
@@ -596,15 +651,25 @@ function expandBox(box, overlay) {
     return;
   }
   
-  // Clone the slide content
-  const content = targetSlide.cloneNode(true);
+  const inEditMode = document.body.classList.contains('edit-mode');
+
+  // In presentation mode, expanded box is still a preview (title only)
+  const content = inEditMode
+    ? targetSlide.cloneNode(true)
+    : document.createElement('section');
   content.classList.add('expanded-content');
+
+  if (!inEditMode) {
+    content.appendChild(buildNavPreviewFragmentFromSlide(targetSlide));
+  }
   
   // Store original content
   box.dataset.originalContent = box.innerHTML;
   
   // Store reference to original slide for syncing changes back
-  box._originalSlide = targetSlide;
+  if (inEditMode) {
+    box._originalSlide = targetSlide;
+  }
   
   // Replace box content with slide content
   box.innerHTML = '';
@@ -628,7 +693,7 @@ function expandBox(box, overlay) {
     console.log('[expandBox] Box expanded');
     
     // If in edit mode, notify slide-editor to make cloned content editable
-    if (document.body.classList.contains('edit-mode')) {
+    if (inEditMode) {
       document.dispatchEvent(new CustomEvent('navbox-expanded', {
         detail: { container: content, targetH, targetV }
       }));
@@ -796,6 +861,7 @@ function setupCircleNavigation() {
 // Make setupNavigationBoxes and setupCircleNavigation globally accessible
 window.setupNavigationBoxes = setupNavigationBoxes;
 window.setupCircleNavigation = setupCircleNavigation;
+window.enforceNavBoxTitleOnly = sanitizeNavBoxPreviewContent;
 
 // Start
 init();

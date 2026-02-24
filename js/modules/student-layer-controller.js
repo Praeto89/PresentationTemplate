@@ -246,12 +246,29 @@ function updateSlideEditsFromState(slideEdits) {
         ? slide.querySelectorAll(`${tagName}.${firstClass}`)
         : slide.querySelectorAll(tagName);
       
-      if (elements[elementIndex]) {
-        elements[elementIndex].innerHTML = html;
+      const targetElement = elements[elementIndex];
+      if (targetElement) {
+        const navBox = targetElement.closest('.nav-box');
+        if (navBox) {
+          const lowerTag = targetElement.tagName.toLowerCase();
+          if (lowerTag !== 'h4' && !targetElement.classList.contains('box-title')) {
+            continue;
+          }
+
+          const textOnly = String(html).replace(/<[^>]*>/g, '').trim();
+          targetElement.textContent = textOnly;
+          continue;
+        }
+
+        targetElement.innerHTML = html;
       }
     } catch (err) {
       console.warn('[StudentLayerController] Error applying slide edit:', identifier, err);
     }
+  }
+
+  if (typeof window !== 'undefined' && typeof window.enforceNavBoxTitleOnly === 'function') {
+    window.enforceNavBoxTitleOnly();
   }
   
   console.log('[StudentLayerController] Applied slide edits for current student');

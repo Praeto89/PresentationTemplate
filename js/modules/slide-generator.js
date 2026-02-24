@@ -84,8 +84,6 @@ export function generateTopicSlide(topicNumber, topicTitle, topicId, detailSlide
     <!-- Detail Slide ${i} -->
     <section class="detail-slide" data-parent-topic="${topicId}">
       <h5>${topicTitle} - Detail ${i}</h5>
-      <p>Platzhalter für Inhalte</p>
-      <p>Bearbeiten Sie diesen Text im Edit-Mode (Strg+E)</p>
       <button class="return-to-main">← Zurück zu ${topicTitle}</button>
     </section>
 `;

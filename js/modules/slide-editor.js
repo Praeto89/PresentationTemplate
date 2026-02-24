@@ -787,17 +787,6 @@ function syncDetailToNavBox(element) {
     fragment.appendChild(navTitle);
   }
 
-  const directPs = Array.from(detailSlide.children).filter((n) => n.tagName === 'P');
-
-  directPs.forEach((p) => {
-    const text = p.textContent.trim();
-    if (!text) return;
-    const newP = document.createElement('p');
-    newP.className = p.className || '';
-    newP.textContent = text;
-    fragment.appendChild(newP);
-  });
-
   if (navBox.classList.contains('expanded')) {
     const tmp = document.createElement('div');
     tmp.appendChild(fragment.cloneNode(true));
